@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build zpg_game",
+      "type": "shell",
+      "command": "cmake --build --preset debug --target zpg_game",
+      "problemMatcher": "$gcc",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Build zpg_sandbox",
+      "type": "shell",
+      "command": "cmake --build --preset debug --target zpg_sandbox",
+      "problemMatcher": "$gcc",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Build zpg_tests",
+      "type": "shell",
+      "command": "cmake --build --preset debug --target zpg_tests",
+      "problemMatcher": "$gcc",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}

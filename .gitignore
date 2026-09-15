@@ -1,0 +1,9 @@
+build/
+.direnv/
+result
+*.trace
+compile_commands.json
+.cache/
+.vscode/*.log
+.zed/*.log
+*.swp

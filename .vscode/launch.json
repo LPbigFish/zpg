@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug zpg_game",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/debug/bin/zpg_game",
+      "cwd": "${workspaceFolder}",
+      "env": { "LSAN_OPTIONS": "detect_leaks=0" },
+      "preLaunchTask": "Build zpg_game"
+    },
+    {
+      "name": "Debug zpg_sandbox",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/debug/bin/zpg_sandbox",
+      "cwd": "${workspaceFolder}",
+      "env": { "LSAN_OPTIONS": "detect_leaks=0" },
+      "preLaunchTask": "Build zpg_sandbox"
+    },
+    {
+      "name": "Debug zpg_tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/debug/bin/zpg_tests",
+      "cwd": "${workspaceFolder}",
+      "env": { "LSAN_OPTIONS": "detect_leaks=0" },
+      "preLaunchTask": "Build zpg_tests"
+    }
+  ]
+}
