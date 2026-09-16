@@ -1,9 +1,13 @@
 # ZPG
 
-## Root
+---
 
+## Build Root
+
+```sh
 cmake --preset debug
   cmake --build --preset debug
+```
 
 ## Build specific targets
 

@@ -13,6 +13,8 @@
 
 namespace {
 
+double dir = 1.0;
+
 void error_callback(int /*error*/, const char* description) {
     fputs(description, stderr);
 }
@@ -22,6 +24,10 @@ auto key_callback(
 ) -> void {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        dir *= -1;
+        std::println("space pressed, reversing rotation direction: {}", dir);
     }
     std::println("key_callback [{},{},{},{}]", key, scancode, action, mods);
 }
@@ -105,12 +111,20 @@ auto main() -> int {
     glLoadIdentity();
     glOrtho(-ratio, ratio, -1.0, 1.0, 1.0, -1.0);
 
+    double current_angle = 0.0;
+    double last_time = glfwGetTime();
     while (!glfwWindowShouldClose(window.get())) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glRotatef(static_cast<float>(glfwGetTime() * 50.0), 0.0f, 1.0f, 0.0f);
+
+        auto time = glfwGetTime() - last_time;
+        last_time = glfwGetTime();
+        current_angle += dir * time * 50.0;
+        glRotated(current_angle, 0.0, 0.0, 1.0);
+
+        glTranslatef(0.6f, 0.6f, 0.f);
 
         glBegin(GL_TRIANGLES);
 
@@ -127,7 +141,7 @@ auto main() -> int {
             glVertex3f(-0.6f, -0.6f, 0.f);
             glColor3f(0.f, 0.f, 1.f);
             glVertex3f(0.6f, 0.6f, 0.f);
-            glColor3f(1.f, 1.f, 0.f);
+            glColor3f(0.f, 1.f, 1.f);
             glVertex3f(-0.6f, 0.6f, 0.f);
         }
 
