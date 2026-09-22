@@ -8,9 +8,9 @@ class Window {
     ~Window() = default;
 
     Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
+    auto operator=(const Window&) -> Window& = delete;
     Window(Window&&) = delete;
-    Window& operator=(Window&&) = delete;
+    auto operator=(Window&&) -> Window& = delete;
 };
 
 } // namespace zpg::core
