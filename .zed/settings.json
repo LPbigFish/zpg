@@ -1,0 +1,21 @@
+{
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "arguments": [
+          "--background-index",
+          "--clang-tidy",
+          "--query-driver=/nix/store/*-clang-wrapper-*/bin/clang,/nix/store/*-clang-wrapper-*/bin/clang++"
+        ]
+      }
+    }
+  },
+  "languages": {
+    "C": {
+      "format_on_save": "on"
+    },
+    "C++": {
+      "format_on_save": "on"
+    }
+  }
+}
