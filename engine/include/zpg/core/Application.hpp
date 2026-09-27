@@ -1,14 +1,19 @@
 #pragma once
-
+#include "zpg/core/GLFWContext.hpp"
 #include "zpg/core/Window.hpp"
+#include <functional>
+#include <memory>
 
 namespace zpg::core {
 
 class Application {
-    Window window;
+    GLFWContext glfw_context;
+    std::unique_ptr<Window> window;
+
+    static auto print_info() noexcept -> void;
 
   public:
-    Application() = default;
+    Application();
     ~Application() = default;
 
     Application(const Application&) = delete;
@@ -22,7 +27,7 @@ class Application {
     auto init() -> void;
     auto create_shaders() -> void;
     auto create_models() -> void;
-    auto run() -> void;
+    auto run(const std::function<void()>& loop_program) -> void;
 };
 
 } // namespace zpg::core

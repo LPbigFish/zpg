@@ -1,11 +1,7 @@
 #define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.h>
+#include <zpg/core/Application.hpp>
+#include <zpg/graphics/ShaderProgram.hpp>
 
-#include <array>
-#include <cstdlib>
-#include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
@@ -15,100 +11,11 @@
 #include "models/suzi_flat.h"
 #include "models/suzi_smooth.h"
 
-#include <memory>
 #include <print>
-#include <string>
 
-namespace {
+namespace zg = zpg::graphics;
 
-double dir = 1.0;
-
-void error_callback(int /*error*/, const char* description) {
-    fputs(description, stderr);
-}
-
-auto key_callback(
-    GLFWwindow* window, int key, int scancode, int action, int mods
-) -> void {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        dir *= -1;
-        std::println("space pressed, reversing rotation direction: {}", dir);
-    }
-    std::println("key_callback [{},{},{},{}]", key, scancode, action, mods);
-}
-
-auto window_focus_callback(GLFWwindow* /*window*/, int focused) -> void {
-    std::println("window_focus_callback [{}]", focused);
-}
-
-auto window_iconify_callback(GLFWwindow* /*window*/, int iconified) -> void {
-    std::println("window_iconify_callback [{}]", iconified);
-}
-
-auto window_size_callback(GLFWwindow* /*window*/, int width, int height)
-    -> void {
-    std::println("resize {}, {}", width, height);
-    glViewport(0, 0, width, height);
-}
-
-auto cursor_callback(GLFWwindow* /*window*/, double x, double y) -> void {
-    std::println("cursor_callback [{}, {}]", x, y);
-}
-
-auto button_callback(GLFWwindow* /*window*/, int button, int action, int mode)
-    -> void {
-    if (action == GLFW_PRESS) {
-        std::println("button_callback [{},{},{}]", button, action, mode);
-    }
-}
-
-auto create_shader_from_file(GLenum shaderType, const char* shaderFile)
-    -> GLuint {
-    // Creates an empty shader
-    GLuint shader_id = glCreateShader(shaderType);
-
-    if (shader_id == 0) {
-        std::println("Unable to create shader");
-        exit(EXIT_FAILURE);
-    }
-
-    // Loading the contents of a file into a variable
-    std::ifstream file(shaderFile);
-    if (!file.is_open()) {
-        std::println("Unable to open file {}", shaderFile);
-        glDeleteShader(shader_id);
-        exit(-1);
-    }
-    std::string shader_code{
-      (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()
-    };
-
-    // Set the shader source code
-    const char* source = shader_code.c_str();
-    glShaderSource(shader_id, 1, &source, nullptr);
-
-    // Compile the shader source code
-    glCompileShader(shader_id);
-
-    // Check specialization/compilation status
-    GLint success{};
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        std::array<char, 1024> info_log{};
-        glGetShaderInfoLog(
-            shader_id, sizeof(info_log), nullptr, info_log.data()
-        );
-        std::println("Shader failed: {}", info_log);
-        glDeleteShader(shader_id);
-        exit(1);
-    }
-    return shader_id;
-}
-
-}; // namespace
+namespace zc = zpg::core;
 
 const glm::mat4 projection
     = glm::perspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
@@ -125,74 +32,21 @@ const glm::mat4 view = glm::lookAt(
 auto main() -> int {
     std::println("ZPG sandbox scaffold");
 
-    glfwSetErrorCallback(error_callback);
-
-    if (!glfwInit()) {
-        exit(EXIT_FAILURE);
-        return -1;
-    }
-
-    std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> window{
-      glfwCreateWindow(640 * 2, 480 * 2, "ZPG Sandbox", nullptr, nullptr),
-      &glfwDestroyWindow
-    };
-
-    if (!window) {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glfwMakeContextCurrent(window.get());
-    glfwSwapInterval(1);
-
-    if (!gladLoadGL(reinterpret_cast<GLADloadfunc>(glfwGetProcAddress))) {
-        std::println("GLAD initialization failed");
-        return -1;
-    }
-
-    {
-        std::println(
-            "OpenGL Version: {}",
-            reinterpret_cast<const char*>(glGetString(GL_VERSION))
-        );
-        std::println(
-            "Vendor {}", reinterpret_cast<const char*>(glGetString(GL_VENDOR))
-        );
-        std::println(
-            "Renderer {}",
-            reinterpret_cast<const char*>(glGetString(GL_RENDERER))
-        );
-        std::println(
-            "GLSL {}",
-            reinterpret_cast<const char*>(
-                glGetString(GL_SHADING_LANGUAGE_VERSION)
-            )
-        );
-        int major{};
-        int minor{};
-        int revision{};
-        glfwGetVersion(&major, &minor, &revision);
-        std::println("Using GLFW {}.{}.{}", major, minor, revision);
-    }
-
-    int width = 0;
-    int height = 0;
-    glfwGetFramebufferSize(window.get(), &width, &height);
-
-    glViewport(0, 0, width, height);
+    zc::Application app{};
+    app.init();
 
     // vertex buffer object (vbo1)
     GLuint vbo1 = 0;
     glGenBuffers(1, &vbo1); // generate the vbo1
     glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(suziFlat), suziFlat, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(suziFlat), &suziFlat, GL_STATIC_DRAW);
 
     // vertex buffer object (vbo2)
     GLuint vbo2 = 0;
     glGenBuffers(1, &vbo2); // generate the vbo1
     glBindBuffer(GL_ARRAY_BUFFER, vbo2);
     glBufferData(
-        GL_ARRAY_BUFFER, sizeof(suziSmooth), suziSmooth, GL_STATIC_DRAW
+        GL_ARRAY_BUFFER, sizeof(suziSmooth), &suziSmooth, GL_STATIC_DRAW
     );
 
     // Vertex Array Object (vao1)
@@ -244,46 +98,32 @@ auto main() -> int {
         reinterpret_cast<GLvoid*>(3 * sizeof(float))
     );
 
-    GLuint basic_vertex_shader
-        = create_shader_from_file(GL_VERTEX_SHADER, "shaders/basic.vert");
-    GLuint basic_fragment_shader
-        = create_shader_from_file(GL_FRAGMENT_SHADER, "shaders/basic.frag");
-    GLuint special_vertex_shader
-        = create_shader_from_file(GL_VERTEX_SHADER, "shaders/special.vert");
-    GLuint special_fragment_shader
-        = create_shader_from_file(GL_FRAGMENT_SHADER, "shaders/special.frag");
+    zg::VertexShader basic_vertex_shader{"shaders/basic.vert"};
+    zg::FragmentShader basic_fragment_shader{"shaders/basic.frag"};
+    zg::VertexShader special_vertex_shader{"shaders/special.vert"};
+    zg::FragmentShader special_fragment_shader{"shaders/special.frag"};
 
     // Create and link the shader program
-    GLuint basic_shader_program = glCreateProgram();
-    glAttachShader(basic_shader_program, basic_fragment_shader);
-    glAttachShader(basic_shader_program, basic_vertex_shader);
-    glLinkProgram(basic_shader_program);
+    zg::ShaderProgram basic_shader_program{
+      basic_vertex_shader, basic_fragment_shader
+    };
 
-    GLuint special_shader_program = glCreateProgram();
-    glAttachShader(special_shader_program, special_fragment_shader);
-    glAttachShader(special_shader_program, special_vertex_shader);
-    glLinkProgram(special_shader_program);
+    zg::ShaderProgram special_shader_program{
+      special_vertex_shader, special_fragment_shader
+    };
 
-    glEnable(GL_DEPTH_TEST);
-    while (!glfwWindowShouldClose(window.get())) {
-        // Clear color and depth buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(basic_shader_program);
+    auto workflow = [&]() -> void {
+        basic_shader_program.set_shader_program();
         glBindVertexArray(vao1);
 
         // Draw a triangles
         glDrawArrays(GL_TRIANGLES, 0, sizeof(suziFlat)); // mode,first,count
 
-        glUseProgram(special_shader_program);
+        special_shader_program.set_shader_program();
         glBindVertexArray(vao2);
 
         glDrawArrays(GL_TRIANGLES, 0, sizeof(suziSmooth));
+    };
 
-        glfwSwapBuffers(window.get());
-        glfwPollEvents();
-    }
-
-    window.reset();
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
+    app.run(workflow);
 }

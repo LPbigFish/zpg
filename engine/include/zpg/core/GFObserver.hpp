@@ -1,8 +1,9 @@
+#pragma once
+#include "zpg/utils/unique_variant.hpp"
+
 #include <concepts>
 #include <functional>
-#include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace zpg::core::gfobserver {
@@ -39,7 +40,7 @@ struct ButtonEvent {
     int mode;
 };
 
-using Events = std::variant<
+using Events = zpg::utils::uniqueVariant<
     KeyEvent,
     WindowFocusEvent,
     WindowIconifyEvent,

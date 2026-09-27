@@ -1,5 +1,5 @@
+#pragma once
 #include "zpg/graphics/Shader.hpp"
-#include <GL/gl.h>
 
 namespace zpg::graphics {
 
@@ -8,8 +8,16 @@ class ShaderProgram {
 
   public:
     ShaderProgram() = delete;
-    ShaderProgram(Shader vertex, Shader fragment);
-    auto set_shader_program() -> bool;
+    ~ShaderProgram();
+    ShaderProgram(VertexShader& vertex, FragmentShader& fragment);
+
+    ShaderProgram(ShaderProgram&& other) noexcept;
+
+    ShaderProgram(const ShaderProgram&) = delete;
+    auto operator=(const ShaderProgram&) -> ShaderProgram& = delete;
+    auto operator=(ShaderProgram&&) -> ShaderProgram& = delete;
+
+    auto set_shader_program() const -> void;
 };
 
 } // namespace zpg::graphics
