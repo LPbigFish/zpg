@@ -1,11 +1,11 @@
 #pragma once
 #include <cstdint>
+#include <expected>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <glad/gl.h>
 #include <iterator>
-#include <stdexcept>
 #include <utility>
 
 namespace fs = std::filesystem;
@@ -36,12 +36,15 @@ template<ShaderType Type> class Shader {
         }
     }
 
+    explicit Shader(GLuint _id): id{_id} {}
+
   public:
-    explicit Shader(const fs::path& path) {
+    static auto create(const fs::path& path)
+        -> std::expected<Shader, std::string> {
         // MARK: FILESYSTEM
 
         if (!fs::exists(path)) {
-            throw std::runtime_error{
+            return std::unexpected{
               std::format("Shader not found on path: {}", path.string())
             };
         }
@@ -53,11 +56,11 @@ template<ShaderType Type> class Shader {
         const auto* c_sc = shader_code.c_str();
 
         // MARK: SHADER CREATION
-
+        GLuint id{};
         id = glCreateShader(gl_type());
 
         if (id == 0) {
-            throw std::runtime_error{
+            return std::unexpected{
               std::format("Failed to create {} shader", shader_name())
             };
         }
@@ -79,10 +82,12 @@ template<ShaderType Type> class Shader {
             glDeleteShader(id);
             id = 0;
 
-            throw std::runtime_error{std::format(
-                "Failed to compile {} shader: {}", shader_name(), info_log
+            return std::unexpected{std::format(
+                "Failed to compile {} shader: \n    {}", shader_name(), info_log
             )};
-        }
+        };
+
+        return Shader{id};
     }
 
     Shader(Shader&& other) noexcept: id{std::exchange(other.id, 0)} {}

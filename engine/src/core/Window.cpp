@@ -8,7 +8,7 @@
 namespace zpg::core {
 Window::Window():
     window{
-      glfwCreateWindow(1280, 720, "ZPG Window", nullptr, nullptr),
+      glfwCreateWindow(1280, 960, "ZPG Window", nullptr, nullptr),
       &glfwDestroyWindow
     } {
     if (!window) {
