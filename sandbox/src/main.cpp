@@ -20,14 +20,45 @@ namespace zg = zpg::graphics;
 namespace zc = zpg::core;
 
 const std::array<float, 36> points{
-    // First triangle
-    -0.5f, 0.5f,  0.0f, 1.0f, 0.0f, 0.0f,
-    0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    // Second triangle
-    0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, 0.0f};
+  // First triangle
+  -0.5f,
+  0.5f,
+  0.0f,
+  1.0f,
+  0.0f,
+  0.0f,
+  0.5f,
+  0.5f,
+  0.0f,
+  0.0f,
+  1.0f,
+  0.0f,
+  -0.5f,
+  -0.5f,
+  0.0f,
+  0.0f,
+  0.0f,
+  1.0f,
+  // Second triangle
+  0.5f,
+  0.5f,
+  0.0f,
+  0.0f,
+  1.0f,
+  0.0f,
+  -0.5f,
+  -0.5f,
+  0.0f,
+  0.0f,
+  0.0f,
+  1.0f,
+  0.5f,
+  -0.5f,
+  0.0f,
+  1.0f,
+  1.0f,
+  0.0f
+};
 
 const glm::mat4 projection
     = glm::perspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
@@ -48,7 +79,7 @@ auto main() -> int {
     GLuint vbo1 = 0;
     glGenBuffers(1, &vbo1); // generate the vbo1
     glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(suziFlat), &suziFlat, GL_STATIC_DRAW);
 
     // Vertex Array Object (vao1)
     GLuint vao1 = 0;
@@ -149,15 +180,15 @@ auto main() -> int {
 
         // Draw the six points as two triangles forming a rectangle.
         glDrawArrays(
-            GL_TRIANGLES, 0, static_cast<GLsizei>(points.size() / 6)
+            GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(suziFlat) / 6)
         );
 
-        /*
         special_shader_program.set_shader_program();
         glBindVertexArray(vao2);
 
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(suziSmooth));
-        */
+        glDrawArrays(
+            GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(suziSmooth) / 6)
+        );
     };
 
     app.run(workflow);

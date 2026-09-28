@@ -1,13 +1,6 @@
 add_library(
-  zpg_engine STATIC
-  src/core/Application.cpp
-  src/core/Window.cpp
-  src/graphics/Shader.cpp
-  src/graphics/ShaderProgram.cpp
-  src/graphics/Buffer.cpp
-  src/graphics/VertexArray.cpp
-  src/graphics/Texture.cpp
-  src/graphics/Camera.cpp)
+  zpg_engine STATIC src/core/Application.cpp src/core/Window.cpp
+                    src/graphics/Shader.cpp src/graphics/ShaderProgram.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)
