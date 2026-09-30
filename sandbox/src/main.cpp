@@ -101,14 +101,14 @@ auto main() -> int {
         GLint loc = basic_shader_program.get_uniform_location("fragmentColor");
 
         if (loc != -1) {
-            glUniform3f(loc, 1.f, 0.f, 0.f);
+            basic_shader_program.set_uniform(loc, 1.f, 1.f, 0.5f);
         } else {
             std::println(stderr, "uniform location was not found!");
         }
 
         GLint loc2 = basic_shader_program.get_uniform_location("angle");
         if (loc != -1) {
-            glUniform1f(loc2, RADIANTS.at(angle % 360));
+            basic_shader_program.set_uniform(loc2, RADIANTS.at(angle % 360));
         } else {
             std::println(stderr, "uniform location was not found!");
         }
@@ -118,8 +118,9 @@ auto main() -> int {
             angle = 0;
         }
 
+        basic_shader_program.set_shader_program();
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(points) / 6));
-        zg::ShaderProgram::unset_shader_program();
+        basic_shader_program.unset_shader_program();
     };
 
     app.run(workflow);

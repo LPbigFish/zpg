@@ -1,4 +1,5 @@
 #pragma once
+#include <concepts>
 #include <cstdint>
 #include <glad/gl.h>
 
@@ -30,4 +31,9 @@ template<> struct gl_t<std::uint16_t> {
     static constexpr GLenum V = GL_UNSIGNED_SHORT;
 };
 
+// concept pro matchnutí GL types pro overloading
+template<typename T>
+concept GlTypeConstrain = std::same_as<std::remove_cvref_t<T>, GLint>
+                       || std::same_as<std::remove_cvref_t<T>, GLuint>
+                       || std::same_as<std::remove_cvref_t<T>, GLfloat>;
 } // namespace zpg::core
