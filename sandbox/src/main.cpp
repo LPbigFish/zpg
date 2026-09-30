@@ -1,5 +1,8 @@
 #include "zpg/core/GlType.hpp"
+#include <GL/gl.h>
 #include <array>
+#include <cstddef>
+#include <glm/ext/scalar_constants.hpp>
 #define GLFW_INCLUDE_NONE
 #include <zpg/core/Application.hpp>
 #include <zpg/graphics/ShaderProgram.hpp>
@@ -10,8 +13,10 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include "models/opengl_logo.h"
 #include "models/suzi_flat.h"
 #include "models/suzi_smooth.h"
+#include "models/text.h"
 
 #include <print>
 
@@ -19,46 +24,13 @@ namespace zg = zpg::graphics;
 
 namespace zc = zpg::core;
 
-const std::array<float, 36> points{
-  // First triangle
-  -0.5f,
-  0.5f,
-  0.0f,
-  1.0f,
-  0.0f,
-  0.0f,
-  0.5f,
-  0.5f,
-  0.0f,
-  0.0f,
-  1.0f,
-  0.0f,
-  -0.5f,
-  -0.5f,
-  0.0f,
-  0.0f,
-  0.0f,
-  1.0f,
-  // Second triangle
-  0.5f,
-  0.5f,
-  0.0f,
-  0.0f,
-  1.0f,
-  0.0f,
-  -0.5f,
-  -0.5f,
-  0.0f,
-  0.0f,
-  0.0f,
-  1.0f,
-  0.5f,
-  -0.5f,
-  0.0f,
-  1.0f,
-  1.0f,
-  0.0f
-};
+constexpr auto RADIANTS = []() -> std::array<float, 360> {
+    std::array<float, 360> res{};
+    for (std::size_t i = 0; i < 360; i++) {
+        res.at(i) = static_cast<float>(i) * (glm::pi<float>() / 180);
+    }
+    return res;
+}();
 
 const glm::mat4 projection
     = glm::perspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
@@ -79,7 +51,7 @@ auto main() -> int {
     GLuint vbo1 = 0;
     glGenBuffers(1, &vbo1); // generate the vbo1
     glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(suziFlat), &suziFlat, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
 
     // Vertex Array Object (vao1)
     GLuint vao1 = 0;
@@ -106,89 +78,48 @@ auto main() -> int {
         reinterpret_cast<GLvoid*>(3 * sizeof(float))
     );
 
-    // vertex buffer object (vbo2)
-    GLuint vbo2 = 0;
-    glGenBuffers(1, &vbo2); // generate the vbo1
-    glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-    glBufferData(
-        GL_ARRAY_BUFFER, sizeof(suziSmooth), &suziSmooth, GL_STATIC_DRAW
-    );
+    auto vs = zg::VertexShader::create("shaders/transformation.vert");
+    auto fs = zg::FragmentShader::create("shaders/transformation.frag");
 
-    GLuint vao2 = 0;
-    glGenVertexArrays(1, &vao2);  // generate the vao1
-    glBindVertexArray(vao2);      // bind the vao1
-    glEnableVertexAttribArray(0); // enable vertex attributes
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-    // index, number of components, data type, normalized, vertex stride, offset
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        6 * sizeof(float),
-        reinterpret_cast<GLvoid*>(0)
-    );
-    glVertexAttribPointer(
-        1,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        6 * sizeof(float),
-        reinterpret_cast<GLvoid*>(3 * sizeof(float))
-    );
-
-    auto basic_vertex_shader = zg::VertexShader::create("shaders/basic.vert");
-    auto basic_fragment_shader
-        = zg::FragmentShader::create("shaders/basic.frag");
-
-    if (!basic_vertex_shader) {
-        std::println(stderr, "{}", basic_vertex_shader.error());
+    if (!vs) {
+        std::println(stderr, "{}", vs.error());
         return 1;
     }
-    if (!basic_fragment_shader) {
-        std::println(stderr, "{}", basic_fragment_shader.error());
-        return 1;
-    }
-
-    auto special_vertex_shader
-        = zg::VertexShader::create("shaders/special.vert");
-    auto special_fragment_shader
-        = zg::FragmentShader::create("shaders/special.frag");
-
-    if (!special_vertex_shader) {
-        std::println(stderr, "{}", special_vertex_shader.error());
-        return 1;
-    }
-    if (!special_fragment_shader) {
-        std::println(stderr, "{}", special_fragment_shader.error());
+    if (!fs) {
+        std::println(stderr, "{}", fs.error());
         return 1;
     }
 
     // Create and link the shader program
-    zg::ShaderProgram basic_shader_program{
-      basic_vertex_shader.value(), basic_fragment_shader.value()
-    };
+    zg::ShaderProgram basic_shader_program{*vs, *fs};
 
-    zg::ShaderProgram special_shader_program{
-      special_vertex_shader.value(), special_fragment_shader.value()
-    };
+    std::size_t angle = 0;
 
     auto workflow = [&]() -> void {
         basic_shader_program.set_shader_program();
         glBindVertexArray(vao1);
+        GLint loc = basic_shader_program.get_uniform_location("fragmentColor");
 
-        // Draw the six points as two triangles forming a rectangle.
-        glDrawArrays(
-            GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(suziFlat) / 6)
-        );
+        if (loc != -1) {
+            glUniform3f(loc, 1.f, 0.f, 0.f);
+        } else {
+            std::println(stderr, "uniform location was not found!");
+        }
 
-        special_shader_program.set_shader_program();
-        glBindVertexArray(vao2);
+        GLint loc2 = basic_shader_program.get_uniform_location("angle");
+        if (loc != -1) {
+            glUniform1f(loc2, RADIANTS.at(angle % 360));
+        } else {
+            std::println(stderr, "uniform location was not found!");
+        }
 
-        glDrawArrays(
-            GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(suziSmooth) / 6)
-        );
+        angle += 1;
+        if (angle >= 360) {
+            angle = 0;
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(sizeof(points) / 6));
+        zg::ShaderProgram::unset_shader_program();
     };
 
     app.run(workflow);
