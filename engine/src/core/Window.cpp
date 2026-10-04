@@ -1,9 +1,7 @@
 #include "zpg/core/Window.hpp"
+#include "zpg/core/GFObserver.hpp"
 #include <GLFW/glfw3.h>
 #include <stdexcept>
-
-// TODO: Create GLFW window and request GLFW_OPENGL_DEBUG_CONTEXT in debug
-// builds.
 
 namespace zpg::core {
 Window::Window():
@@ -14,6 +12,24 @@ Window::Window():
     if (!window) {
         throw std::runtime_error{"Failed to initialize window"};
     }
+
+    glfwSetKeyCallback(
+        window.get(),
+        // NOLINTNEXTLINE
+        [](GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
+            -> void {
+            auto& observer = gfobserver::GlfwObserver::instance();
+
+            observer.notify(
+                gfobserver::events::KeyEvent{
+                  .key = key,
+                  .scancode = scancode,
+                  .action = action,
+                  .mods = mods
+                }
+            );
+        }
+    );
 }
 
 auto Window::make_context() noexcept -> void {

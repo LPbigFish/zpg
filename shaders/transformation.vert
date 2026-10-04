@@ -5,20 +5,23 @@ layout(location = 1) in vec3 color;
 
 out vec3 vertexColor;
 
+uniform vec3 offset = vec3(0.0, 0.0, 0.0);
+uniform vec3 scale = vec3(1.0, 1.0, 1.0);
+
 uniform float angle = 0.5745329252;
 
 void main() {
     vertexColor = color;
-    // gl_Position
-    //     = vec4(vec3(1, 1, -1) * 0.4 * position + vec3(-0.55, 0.0, 0.0), 1.0);
-    //  gl_Position = vec4(position, 1.0);
-    vec3 p = position;
 
-    float x_ = cos(angle) * p.x + sin(angle) * p.z;
-    float z_ = -sin(angle) * p.x + cos(angle) * p.z;
+    vec3 p = position * scale;
+    
+    vec3 rotatedPosition = vec3(
+        p.x * cos(angle) - p.z * sin(angle),
+        p.y,
+        p.x * sin(angle) + p.z * cos(angle)
+    );
 
-    p.x = x_;
-    p.z = z_;
+    vec3 transformedPosition = rotatedPosition + offset;
 
-    gl_Position = vec4(vec3(1, 1, -1) * 0.4 * p, 1.0);
+    gl_Position = vec4(transformedPosition.xy, -transformedPosition.z, 1.0);
 }

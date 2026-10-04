@@ -1,5 +1,5 @@
-#include "zpg/core/Application.hpp"
-#include "zpg/core/Window.hpp"
+#include "Application.hpp"
+#include "zpg/core/GFObserver.hpp"
 #include <functional>
 #include <stdexcept>
 #define GLAD_GL_IMPLEMENTATION
@@ -67,16 +67,28 @@ auto Application::init() -> void {
         }
     );
 
-    zpg::core::Application::print_info();
+    Application::print_info();
+
+    namespace gfo = zpg::core::gfobserver;
+    namespace events = gfo::events;
+
+    gfo::GlfwObserver::instance().subscribe<events::KeyEvent>(
+        [](const events::KeyEvent& event) -> void {
+            std::println(
+                "key_callback [{},{},{},{}]",
+                event.key,
+                event.scancode,
+                event.action,
+                event.mods
+            );
+        }
+    );
 }
 
-auto Application::create_shaders() -> void {
-
-}
-
-auto Application::run(std::function<void()> const& loop_program) -> void {
+auto Application::run(const std::function<void()>& loop_program) -> void {
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window->get())) {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         loop_program();
