@@ -1,8 +1,12 @@
 #pragma once
 #include "zpg/core/GlType.hpp"
 #include "zpg/graphics/Shader.hpp"
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <print>
 #include <string_view>
+#include <type_traits>
 
 namespace zpg::graphics {
 
@@ -12,7 +16,7 @@ class ShaderProgram {
   public:
     ShaderProgram() = delete;
     ~ShaderProgram();
-    ShaderProgram(VertexShader& vertex, FragmentShader& fragment);
+    ShaderProgram(const VertexShader& vertex, const FragmentShader& fragment);
 
     ShaderProgram(ShaderProgram&& other) noexcept;
 
@@ -108,6 +112,17 @@ class ShaderProgram {
         } else if constexpr (std::same_as<U, GLint>) {
             glUniform4i(location, v0, v1, v2, v3);
         }
+    }
+
+    auto set_uniform(GLint location, glm::mat4 matrix) -> void {
+        if (location == -1) {
+            std::println(
+                stderr, "Invalid location for uniform in shader program: {}", id
+            );
+            return;
+        }
+
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 };
 

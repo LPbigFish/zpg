@@ -15,15 +15,9 @@ class Model {
 
     explicit Model(std::span<const float> data);
 
-    ~Model() {
-        if (vao != 0) {
-            glDeleteVertexArrays(1, &vao);
-        }
-    }
+    ~Model();
 
-    Model(Model&& other) noexcept:
-        vertex_buffer{std::move(other.vertex_buffer)},
-        vao{std::exchange(other.vao, 0)} {}
+    Model(Model&& other) noexcept;
 
     auto operator=(Model&& other) noexcept -> Model& = delete;
     Model(const Model& other) = delete;

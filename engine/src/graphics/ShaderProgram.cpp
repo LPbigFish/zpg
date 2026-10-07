@@ -3,12 +3,15 @@
 #include "zpg/graphics/Shader.hpp"
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace zpg::graphics {
-ShaderProgram::ShaderProgram(VertexShader& vertex, FragmentShader& fragment):
-    id{glCreateProgram()} {
+ShaderProgram::ShaderProgram(
+    const VertexShader& vertex, const FragmentShader& fragment
+): id{glCreateProgram()} {
     glAttachShader(id, vertex.get());
     glAttachShader(id, fragment.get());
+
     glLinkProgram(id);
 }
 

@@ -2,6 +2,7 @@
 #include <concepts>
 #include <cstdint>
 #include <glad/gl.h>
+#include <type_traits>
 
 namespace zpg::core {
 // NOLINTNEXTLINE
@@ -29,6 +30,14 @@ template<> struct gl_t<std::int16_t> {
 
 template<> struct gl_t<std::uint16_t> {
     static constexpr GLenum V = GL_UNSIGNED_SHORT;
+};
+
+template<> struct gl_t<std::bool_constant<true>> {
+    static constexpr GLenum V = GL_TRUE;
+};
+
+template<> struct gl_t<std::bool_constant<false>> {
+    static constexpr GLenum V = GL_FALSE;
 };
 
 // concept pro matchnutí GL types pro overloading
