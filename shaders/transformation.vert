@@ -14,7 +14,7 @@ void main() {
     vertexColor = color;
 
     vec3 p = position * scale;
-    
+
     vec3 rotatedPosition = vec3(
         p.x * cos(angle) - p.z * sin(angle),
         p.y,

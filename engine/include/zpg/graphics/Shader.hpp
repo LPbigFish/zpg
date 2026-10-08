@@ -17,11 +17,14 @@ enum class ShaderType : uint8_t {
 
 template<ShaderType Type> class Shader {
     GLuint id{};
+    friend class ShaderProgram;
 
     static auto gl_type() noexcept -> GLenum;
     static auto shader_name() noexcept -> std::string_view;
 
     explicit Shader(GLuint _id): id{_id} {}
+
+    [[nodiscard]] auto get() const noexcept -> GLuint;
 
   public:
     static auto create(const fs::path& path)
@@ -30,8 +33,6 @@ template<ShaderType Type> class Shader {
     Shader(Shader&& other) noexcept;
 
     ~Shader();
-
-    [[nodiscard]] auto get() const noexcept -> GLuint;
 
     Shader() = delete;
     Shader(const Shader&) = delete;

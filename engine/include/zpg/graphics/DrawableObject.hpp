@@ -1,8 +1,9 @@
 #pragma once
 
 #include "zpg/graphics/Model.hpp"
+#include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
-#include <functional>
+#include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/trigonometric.hpp>
 #include <numbers>
@@ -16,12 +17,11 @@ constexpr auto RADIANTS = []() -> std::array<float, 360> {
 }();
 
 namespace zpg::graphics {
-class DrawableObject {
+class DrawableObject final: public SceneNode {
     Model model;
     std::shared_ptr<ShaderProgram> shader_program;
-    std::function<void(DrawableObject&)> draw_callback{
-      [](DrawableObject&) -> void {}
-    };
+
+    auto render_in_world(const glm::mat4& mat) -> void override;
 
   public:
     DrawableObject() = delete;
@@ -30,13 +30,9 @@ class DrawableObject {
         Model model, std::shared_ptr<ShaderProgram> shader_program
     );
 
-    auto set_draw_callback(
-        const std::function<void(DrawableObject&)>& callback
-    ) noexcept -> void;
-
     auto draw() noexcept -> void;
 
-    [[nodiscard]] auto get_program() const -> ShaderProgram&;
+    [[nodiscard]] auto get_program() const -> const ShaderProgram&;
 
     DrawableObject(DrawableObject&& other) noexcept;
 

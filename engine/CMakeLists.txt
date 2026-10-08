@@ -1,8 +1,17 @@
 add_library(
   zpg_engine STATIC
-  src/core/GLFWContext.cpp src/core/Window.cpp src/graphics/Shader.cpp
-  src/graphics/ShaderProgram.cpp src/graphics/VertexBuffer.cpp src/graphics/Model.cpp
-  src/core/Scene.cpp src/graphics/DrawableObject.cpp)
+  src/core/GLFWContext.cpp
+  src/core/Window.cpp
+  src/graphics/Shader.cpp
+  src/graphics/ShaderProgram.cpp
+  src/graphics/VertexBuffer.cpp
+  src/graphics/Model.cpp
+  src/graphics/Transformation.cpp
+  src/graphics/SceneNode.cpp
+  src/core/Scene.cpp
+  src/graphics/DrawableObject.cpp
+  src/graphics/Group.cpp
+  src/core/Renderer.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)

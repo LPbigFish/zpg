@@ -29,12 +29,8 @@ class Model {
 
     [[nodiscard]] auto get_count() const noexcept -> GLsizei {
         return static_cast<GLsizei>(
-            vertex_buffer.get_size() / (6 * sizeof(float))
+            vertex_buffer.get_size() / (9 * sizeof(float))
         );
-    }
-
-    [[nodiscard]] auto get_vao() const noexcept -> GLuint {
-        return vao;
     }
 
     auto bind() const noexcept -> void {

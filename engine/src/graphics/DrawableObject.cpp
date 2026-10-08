@@ -1,4 +1,6 @@
 #include "zpg/graphics/DrawableObject.hpp"
+#include "zpg/graphics/SceneNode.hpp"
+#include <utility>
 
 namespace zpg::graphics {
 
@@ -10,23 +12,22 @@ DrawableObject::DrawableObject(DrawableObject&& other) noexcept:
     model{std::move(other.model)},
     shader_program{std::move(other.shader_program)} {}
 
-[[nodiscard]] auto DrawableObject::get_program() const -> ShaderProgram& {
+[[nodiscard]] auto DrawableObject::get_program() const -> const ShaderProgram& {
     return *this->shader_program.get();
 }
 
-auto DrawableObject::draw() noexcept -> void {
+auto DrawableObject::render_in_world(const glm::mat4& mat) -> void {
     shader_program->set_shader_program();
-    model.bind();
 
-    draw_callback(*this);
+    auto loc = shader_program->get_uniform_location("modelMatrix");
+    shader_program->set_uniform(loc, mat);
+    model.bind();
     glDrawArrays(GL_TRIANGLES, 0, model.get_count());
     model.unbind();
     shader_program->unset_shader_program();
 }
 
-auto DrawableObject::set_draw_callback(
-    const std::function<void(DrawableObject&)>& callback
-) noexcept -> void {
-    draw_callback = callback;
+auto DrawableObject::draw() noexcept -> void {
+    render_in_world(glm::mat4{1.f});
 }
 } // namespace zpg::graphics

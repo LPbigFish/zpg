@@ -114,7 +114,7 @@ class ShaderProgram {
         }
     }
 
-    auto set_uniform(GLint location, glm::mat4 matrix) -> void {
+    auto set_uniform(GLint location, const glm::mat4& matrix) -> void {
         if (location == -1) {
             std::println(
                 stderr, "Invalid location for uniform in shader program: {}", id

@@ -2,8 +2,6 @@
 
 namespace zpg::core {
 auto Scene::render() -> void {
-    for (const auto& game_object : game_objects) {
-        game_object->draw();
-    }
+    root.render(glm::mat4{1.f});
 }
 } // namespace zpg::core
