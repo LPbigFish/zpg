@@ -1,44 +1,46 @@
 #pragma once
 
-#include "zpg/graphics/VertexBuffer.hpp"
-#include <glad/gl.h>
-#include <zpg/core/GlType.hpp>
+#include "zpg/graphics/VertexArray.hpp"
+#include <expected>
+#include <span>
+#include <string>
+#include <utility>
 
 namespace zpg::graphics {
 
 class Model {
-    VertexBuffer vertex_buffer;
-    GLuint vao{};
+    VertexArray vertex_array;
+
+    explicit Model(VertexArray&& vertex_array):
+        vertex_array{std::move(vertex_array)} {}
 
   public:
     Model() = delete;
+    ~Model() = default;
+    Model(Model&& other) noexcept = default;
+    Model(const Model&) = delete;
+    auto operator=(Model&&) -> Model& = delete;
+    auto operator=(const Model&) -> Model& = delete;
 
-    explicit Model(std::span<const float> data);
-
-    ~Model();
-
-    Model(Model&& other) noexcept;
-
-    auto operator=(Model&& other) noexcept -> Model& = delete;
-    Model(const Model& other) = delete;
-    auto operator=(const Model& other) -> Model& = delete;
-
-    [[nodiscard]] auto get_size() const noexcept -> std::size_t {
-        return vertex_buffer.get_size();
+    template<VertexLayout Layout>
+    static auto create(std::span<const float> data)
+        -> std::expected<Model, std::string> {
+        auto vertex_array = VertexArray::create(data, Layout);
+        if (!vertex_array) {
+            return std::unexpected{std::move(vertex_array).error()};
+        }
+        return Model{std::move(*vertex_array)};
     }
 
     [[nodiscard]] auto get_count() const noexcept -> GLsizei {
-        return static_cast<GLsizei>(
-            vertex_buffer.get_size() / (9 * sizeof(float))
-        );
+        return vertex_array.get_count();
     }
 
     auto bind() const noexcept -> void {
-        glBindVertexArray(vao);
+        vertex_array.bind();
     }
 
-    // NOLINTNEXTLINE
-    auto unbind() const noexcept -> void {
+    static auto unbind() noexcept -> void {
         glBindVertexArray(0);
     }
 };

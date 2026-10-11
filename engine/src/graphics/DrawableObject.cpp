@@ -1,5 +1,4 @@
 #include "zpg/graphics/DrawableObject.hpp"
-#include "zpg/graphics/SceneNode.hpp"
 #include <utility>
 
 namespace zpg::graphics {
@@ -23,7 +22,7 @@ auto DrawableObject::render_in_world(const glm::mat4& mat) -> void {
     shader_program->set_uniform(loc, mat);
     model.bind();
     glDrawArrays(GL_TRIANGLES, 0, model.get_count());
-    model.unbind();
+    Model::unbind();
     shader_program->unset_shader_program();
 }
 
