@@ -8,8 +8,17 @@ auto SceneNode::set_draw_callback(
     draw_callback = callback;
 }
 
+auto SceneNode::set_transform(
+    std::shared_ptr<TransformationComponent> transformation
+) -> void {
+    node_transform = std::move(transformation);
+}
+
 auto SceneNode::render(const glm::mat4& parent_matrix) -> void {
     draw_callback(*this);
-    this->render_in_world(parent_matrix * this->get_transformation());
+    const auto local = node_transform != nullptr
+                         ? node_transform->get_matrix()
+                         : Transformation::get_transformation();
+    this->render_in_world(parent_matrix * local);
 }
 } // namespace zpg::graphics

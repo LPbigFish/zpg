@@ -13,12 +13,16 @@
 #include "zpg/graphics/DrawableObject.hpp"
 #include "zpg/graphics/Group.hpp"
 #include "zpg/graphics/Model.hpp"
-#include "zpg/graphics/SceneNode.hpp"
+#include "zpg/graphics/Rotation.hpp"
+#include "zpg/graphics/RotationRepeat.hpp"
+#include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Shader.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
+#include "zpg/graphics/Translation.hpp"
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <glm/ext/quaternion_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -151,26 +155,15 @@ auto Application::create_scenes() -> void {
     auto shader_program = std::make_shared<zg::ShaderProgram>(*vs, *fs);
     auto shader_program_2 = std::make_shared<zg::ShaderProgram>(*vs, *fs_solid);
 
-    const auto set_rotation = [](zg::SceneNode& object, float degrees) -> void {
-        object.set_draw_callback(
-            [clock = std::size_t{0},
-             degrees](zg::SceneNode& node) mutable -> void {
-                if (++clock == 3) {
-                    clock = 0;
-                    node.rotate_y(glm::radians(degrees));
-                }
-            }
-        );
-    };
-
     // Scene 1 OBJECTS
     {
         auto scene1 = std::make_unique<zc::Scene>();
         scene1->add_shader_program(shader_program);
 
-        // TRIANGLE OBJECT
+        // Triangle A: matrix S * T * R
+        // Triangle B: matrix S * R * T
         {
-            constexpr std::array<float, 18> POINTS_TRIANGLE{
+            constexpr std::array<float, 18> POINTS_TRIANGLE_A{
               -0.5f,
               -0.5f,
               0.0f,
@@ -190,16 +183,67 @@ auto Application::create_scenes() -> void {
               0.0f,
               1.0f
             };
+            constexpr std::array<float, 18> POINTS_TRIANGLE_B{
+              -0.5f,
+              -0.5f,
+              0.0f,
+              0.0f,
+              1.0f,
+              1.0f,
+              0.5f,
+              -0.5f,
+              0.0f,
+              1.0f,
+              0.0f,
+              1.0f,
+              0.0f,
+              0.5f,
+              0.0f,
+              1.0f,
+              1.0f,
+              0.0f
+            };
 
-            auto triangle_model = zg::Model::create<zg::VertexLayout::PosColor>(
-                                      std::span<const float>{POINTS_TRIANGLE}
-            )
-                                      .value();
-            auto triangle_object = std::make_unique<zg::DrawableObject>(
-                std::move(triangle_model), shader_program
+            auto triangle_model_a
+                = zg::Model::create<zg::VertexLayout::PosColor>(
+                      std::span<const float>{POINTS_TRIANGLE_A}
+                )
+                      .value();
+            auto triangle_model_b
+                = zg::Model::create<zg::VertexLayout::PosColor>(
+                      std::span<const float>{POINTS_TRIANGLE_B}
+                )
+                      .value();
+
+            // A: T applied first, then R (rotate around world origin).
+            auto triangle_object_a = std::make_unique<zg::DrawableObject>(
+                std::move(triangle_model_a), shader_program
             );
-            triangle_object->scale(0.8f);
-            scene1->add_game_object(std::move(triangle_object));
+            triangle_object_a->add_transformation(
+                std::make_unique<zg::Scale>(0.8f)
+            );
+            triangle_object_a->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.45f, -0.45f, 0.f})
+            );
+            triangle_object_a->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 0.f, 1.f}, 90.0f)
+            );
+            scene1->add_game_object(std::move(triangle_object_a));
+
+            // B: R applied first (spin in place), then T.
+            auto triangle_object_b = std::make_unique<zg::DrawableObject>(
+                std::move(triangle_model_b), shader_program
+            );
+            triangle_object_b->add_transformation(
+                std::make_unique<zg::Scale>(0.8f)
+            );
+            triangle_object_b->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 0.f, 1.f}, 90.0f)
+            );
+            triangle_object_b->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.45f, -0.45f, 0.f})
+            );
+            scene1->add_game_object(std::move(triangle_object_b));
         }
 
         // LOGIN OBJECT
@@ -211,9 +255,15 @@ auto Application::create_scenes() -> void {
             auto login_object = std::make_unique<zg::DrawableObject>(
                 std::move(login_model), shader_program
             );
-            login_object->transform(glm::vec3{0.81f, -0.89f, 0.0f});
-            login_object->scale(glm::vec3{0.15f, 0.15f, 0.15f});
-            login_object->rotate_y(glm::radians(20.0f));
+            login_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Scale>(0.15f)
+            );
             scene1->add_game_object(std::move(login_object));
         }
 
@@ -234,9 +284,15 @@ auto Application::create_scenes() -> void {
             auto login_object = std::make_unique<zg::DrawableObject>(
                 std::move(login_model), shader_program
             );
-            login_object->transform(glm::vec3{0.81f, -0.89f, 0.0f});
-            login_object->scale(glm::vec3{0.15f, 0.15f, 0.15f});
-            login_object->rotate_z(glm::radians(20.0f));
+            login_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Scale>(0.15f)
+            );
             scene2->add_game_object(std::move(login_object));
         }
 
@@ -249,9 +305,15 @@ auto Application::create_scenes() -> void {
             auto sphere_object = std::make_unique<zg::DrawableObject>(
                 std::move(sphere_model), shader_program
             );
-            sphere_object->transform(glm::vec3{0.0f, 0.1f, 0.0f});
-            sphere_object->scale(glm::vec3{0.2f, 0.2f, 0.2f});
-            sphere_object->rotate_z(glm::radians(45.0f));
+            sphere_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.f, 0.1f, 0.f})
+            );
+            sphere_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 45.0f)
+            );
+            sphere_object->add_transformation(
+                std::make_unique<zg::Scale>(0.2f)
+            );
             scene2->add_game_object(std::move(sphere_object));
         }
 
@@ -272,77 +334,18 @@ auto Application::create_scenes() -> void {
             auto login_object = std::make_unique<zg::DrawableObject>(
                 std::move(login_model), shader_program
             );
-            login_object->transform(glm::vec3{0.81f, -0.89f, 0.0f});
-            login_object->scale(glm::vec3{0.15f, 0.15f, 0.15f});
-            login_object->rotate_z(glm::radians(20.0f));
+            login_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Scale>(0.15f)
+            );
             scene3->add_game_object(std::move(login_object));
         }
 
-        // Fixed bushes
-        {
-            const std::array bush_positions{
-              glm::vec3{-0.82f, -0.72f, 0.65f},
-              glm::vec3{0.36f, -0.78f, 0.72f},
-              glm::vec3{0.79f, -0.61f, 0.52f},
-              glm::vec3{-0.24f, -0.58f, 0.45f},
-              glm::vec3{-0.62f, -0.36f, 0.38f},
-              glm::vec3{0.15f, -0.42f, 0.55f},
-              glm::vec3{0.62f, -0.28f, 0.33f},
-              glm::vec3{-0.85f, -0.12f, 0.25f},
-              glm::vec3{-0.28f, -0.18f, 0.20f},
-              glm::vec3{0.38f, -0.08f, 0.15f},
-              glm::vec3{-0.92f, -0.50f, 0.12f},
-              glm::vec3{0.88f, -0.04f, 0.10f}
-            };
-
-            for (const auto& position : bush_positions) {
-                auto bush_model = zg::Model::create<zg::VertexLayout::PosColor>(
-                                      std::span<const float>{bushes}
-                )
-                                      .value();
-                auto bush_object = std::make_unique<zg::DrawableObject>(
-                    std::move(bush_model), shader_program
-                );
-                bush_object->transform(position);
-                bush_object->scale(0.25f);
-                bush_object->rotate_y(glm::radians(90.0f));
-                scene3->add_game_object(std::move(bush_object));
-            }
-        }
-
-        // Fixed trees
-        {
-            const std::array tree_positions{
-              glm::vec3{-0.56f, -0.80f, 0.68f},
-              glm::vec3{0.78f, -0.83f, 0.62f},
-              glm::vec3{0.06f, -0.69f, 0.58f},
-              glm::vec3{-0.88f, -0.48f, 0.50f},
-              glm::vec3{0.49f, -0.49f, 0.46f},
-              glm::vec3{-0.17f, -0.36f, 0.42f},
-              glm::vec3{0.83f, -0.22f, 0.36f},
-              glm::vec3{-0.58f, -0.20f, 0.30f},
-              glm::vec3{0.12f, -0.10f, 0.24f},
-              glm::vec3{-0.06f, -0.50f, 0.18f},
-              glm::vec3{0.70f, -0.65f, 0.14f},
-              glm::vec3{-0.42f, -0.62f, 0.12f}
-            };
-
-            for (const auto& position : tree_positions) {
-                auto tree_model = zg::Model::create<zg::VertexLayout::PosColor>(
-                                      std::span<const float>{tree}
-                )
-                                      .value();
-                auto tree_object = std::make_unique<zg::DrawableObject>(
-                    std::move(tree_model), shader_program
-                );
-                tree_object->transform(position);
-                tree_object->scale(0.08f);
-                tree_object->rotate_y(glm::radians(90.0f));
-                scene3->add_game_object(std::move(tree_object));
-            }
-        }
-
-        // Sun in the middle
         {
             auto sun_model = zg::Model::create<zg::VertexLayout::PosColor>(
                                  std::span<const float>{sphere}
@@ -351,8 +354,10 @@ auto Application::create_scenes() -> void {
             auto sun_object = std::make_unique<zg::DrawableObject>(
                 std::move(sun_model), shader_program_2
             );
-            sun_object->transform(glm::vec3{0.0f, 0.62f, -0.95f});
-            sun_object->scale(glm::vec3{0.22f, 0.22f, 0.22f});
+            sun_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.f, 0.62f, 0.95f})
+            );
+            sun_object->add_transformation(std::make_unique<zg::Scale>(0.22f));
             shader_program_2->set_shader_program();
             const auto location
                 = shader_program_2->get_uniform_location("fragmentColor");
@@ -361,6 +366,84 @@ auto Application::create_scenes() -> void {
             scene3->add_game_object(std::move(sun_object));
         }
 
+        // Each tree is paired with a bush placed at the same random spot
+        {
+            srand(777);
+
+            constexpr auto RANDOM_BETWEEN
+                = [](const float min, const float max) -> float {
+                return min
+                     + (static_cast<float>(rand())
+                        / (static_cast<float>(RAND_MAX) / (max - min)));
+            };
+
+            for (std::size_t i = 0; i < 12; ++i) {
+                const auto base_position = glm::vec3{
+                  RANDOM_BETWEEN(-0.95f, 0.95f),
+                  RANDOM_BETWEEN(-0.85f, -0.02f),
+                  RANDOM_BETWEEN(0.05f, 0.75f)
+                };
+
+                // TREE at the base position
+                {
+                    auto tree_model
+                        = zg::Model::create<zg::VertexLayout::PosColor>(
+                              std::span<const float>{tree}
+                        )
+                              .value();
+                    auto tree_object = std::make_unique<zg::DrawableObject>(
+                        std::move(tree_model), shader_program
+                    );
+                    tree_object->add_transformation(
+                        std::make_unique<zg::Translation>(base_position)
+                    );
+                    tree_object->add_transformation(
+                        std::make_unique<zg::Rotation>(
+                            glm::vec3{0.f, 1.f, 0.f}, RANDOM_BETWEEN(0.f, 360.f)
+                        )
+                    );
+                    tree_object->add_transformation(
+                        std::make_unique<zg::Scale>(
+                            0.08f * RANDOM_BETWEEN(0.8f, 1.2f)
+                        )
+                    );
+                    scene3->add_game_object(std::move(tree_object));
+                }
+
+                // BUSH next to the tree (same spot + small random offset)
+                {
+                    auto bush_model
+                        = zg::Model::create<zg::VertexLayout::PosColor>(
+                              std::span<const float>{bushes}
+                        )
+                              .value();
+                    auto bush_object = std::make_unique<zg::DrawableObject>(
+                        std::move(bush_model), shader_program
+                    );
+                    bush_object->add_transformation(
+                        std::make_unique<zg::Translation>(base_position)
+                    );
+                    bush_object->add_transformation(
+                        std::make_unique<zg::Translation>(glm::vec3{
+                          RANDOM_BETWEEN(-0.08f, 0.08f),
+                          0.f,
+                          RANDOM_BETWEEN(-0.08f, 0.08f)
+                        })
+                    );
+                    bush_object->add_transformation(
+                        std::make_unique<zg::Rotation>(
+                            glm::vec3{0.f, 1.f, 0.f}, RANDOM_BETWEEN(0.f, 360.f)
+                        )
+                    );
+                    bush_object->add_transformation(
+                        std::make_unique<zg::Scale>(
+                            0.25f * RANDOM_BETWEEN(0.8f, 1.2f)
+                        )
+                    );
+                    scene3->add_game_object(std::move(bush_object));
+                }
+            }
+        }
         this->add_scene(std::move(scene3));
     }
 
@@ -378,19 +461,10 @@ auto Application::create_scenes() -> void {
             auto login_object = std::make_unique<zg::DrawableObject>(
                 std::move(login_model), shader_program
             );
-            login_object->transform(glm::vec3{0.0f, 0.0f, 0.0f});
-            login_object->scale(0.5f);
-            login_object->rotate_y(glm::radians(32.0f));
-            /*
-            login_object->set_draw_callback(
-                [clock = std::size_t{0}](zg::SceneNode& node) mutable -> void {
-                    if (++clock == 3) {
-                        clock = 0;
-                        node.rotate_z(glm::radians(1.0f));
-                    }
-                }
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 32.0f)
             );
-            */
+            login_object->add_transformation(std::make_unique<zg::Scale>(0.5f));
             scene4->add_game_object(std::move(login_object));
         }
 
@@ -403,9 +477,15 @@ auto Application::create_scenes() -> void {
             auto login_object = std::make_unique<zg::DrawableObject>(
                 std::move(login_model), shader_program
             );
-            login_object->transform(glm::vec3{0.81f, -0.89f, 0.0f});
-            login_object->scale(0.15f);
-            login_object->rotate_y(glm::radians(20.0f));
+            login_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Scale>(0.15f)
+            );
             scene4->add_game_object(std::move(login_object));
         }
 
@@ -416,67 +496,102 @@ auto Application::create_scenes() -> void {
 
     scene5->add_shader_program(shader_program);
 
+    const auto spin = [](
+                          const float degrees_per_second
+                      ) -> std::unique_ptr<zg::RotationRepeat> {
+        return std::make_unique<zg::RotationRepeat>(
+            glm::vec3{0.f, 1.f, 0.f}, degrees_per_second
+        );
+    };
+
     auto solar_system = std::make_unique<zg::Group>();
-    solar_system->set_draw_callback(
-        [clock = std::size_t{0}](zg::SceneNode& node) mutable -> void {
-            if (++clock == 4) {
-                clock = 0;
-                node.rotate_z(glm::radians(0.05f));
-            }
+    solar_system->set_transform(
+        std::make_shared<zg::RotationRepeat>(glm::vec3{0.f, 1.f, 0.f}, 1.0f)
+    );
+
+    // SUN
+    {
+        auto sun_group = std::make_unique<zg::Group>();
+        auto sun_model
+            = zg::Model::create<zg::VertexLayout::PosColorNormal>(sun).value();
+        auto sun_object = std::make_unique<zg::DrawableObject>(
+            std::move(sun_model), shader_program
+        );
+        sun_object->add_transformation(std::make_unique<zg::Scale>(0.3f));
+        sun_object->add_transformation(spin(15.f));
+        sun_group->add(std::move(sun_object));
+        solar_system->add(std::move(sun_group));
+    }
+
+    // EARTH
+    {
+        auto earth_group = std::make_unique<zg::Group>();
+        earth_group->set_transform(
+            std::make_shared<zg::Translation>(glm::vec3{0.75f, 0.f, 0.f})
+        );
+
+        auto earth_model
+            = zg::Model::create<zg::VertexLayout::PosColorNormal>(earth)
+                  .value();
+        auto earth_object = std::make_unique<zg::DrawableObject>(
+            std::move(earth_model), shader_program
+        );
+        earth_object->add_transformation(std::make_unique<zg::Scale>(0.08f));
+        earth_object->add_transformation(spin(25.f));
+        earth_group->add(std::move(earth_object));
+
+        // MOON ORBIT rotates faster than the whole system -> nested groups
+        {
+            auto moon_orbit = std::make_unique<zg::Group>();
+            moon_orbit->set_transform(
+                std::make_shared<zg::RotationRepeat>(
+                    glm::vec3{0.f, 1.f, 0.f}, 6.0f
+                )
+            );
+
+            auto moon_group = std::make_unique<zg::Group>();
+            moon_group->set_transform(
+                std::make_shared<zg::Translation>(glm::vec3{0.15f, 0.f, 0.f})
+            );
+            auto moon_model
+                = zg::Model::create<zg::VertexLayout::PosColorNormal>(moon)
+                      .value();
+            auto moon_object = std::make_unique<zg::DrawableObject>(
+                std::move(moon_model), shader_program
+            );
+            moon_object->add_transformation(
+                std::make_unique<zg::Scale>(0.008f)
+            );
+            moon_object->add_transformation(spin(40.f));
+            moon_group->add(std::move(moon_object));
+
+            moon_orbit->add(std::move(moon_group));
+            earth_group->add(std::move(moon_orbit));
         }
-    );
 
-    auto sun_group = std::make_unique<zg::Group>();
-    auto sun_model
-        = zg::Model::create<zg::VertexLayout::PosColorNormal>(sun).value();
-    auto sun_object = std::make_unique<zg::DrawableObject>(
-        std::move(sun_model), shader_program
-    );
-    sun_object->scale(0.3f);
-    sun_object->rotate_x(glm::radians(90.0f));
-    set_rotation(*sun_object, 0.5f);
-    sun_group->add(std::move(sun_object));
-    solar_system->add(std::move(sun_group));
+        solar_system->add(std::move(earth_group));
+    }
 
-    auto earth_group = std::make_unique<zg::Group>();
-    earth_group->transform(glm::vec3{0.75f, 0.0f, 0.0f});
-
-    auto earth_model
-        = zg::Model::create<zg::VertexLayout::PosColorNormal>(earth).value();
-    auto earth_object = std::make_unique<zg::DrawableObject>(
-        std::move(earth_model), shader_program
-    );
-    earth_object->scale(0.08f);
-    earth_object->rotate_x(glm::radians(90.0f));
-    set_rotation(*earth_object, 0.5f);
-    earth_group->add(std::move(earth_object));
-
-    auto moon_orbit = std::make_unique<zg::Group>();
-    moon_orbit->set_draw_callback(
-        [clock = std::size_t{0}](zg::SceneNode& node) mutable -> void {
-            if (++clock == 8) {
-                clock = 0;
-                node.rotate_z(glm::radians(0.4f));
-            }
-        }
-    );
-
-    auto moon_group = std::make_unique<zg::Group>();
-    moon_group->transform(glm::vec3{0.15f, 0.0f, 0.0f});
-    auto moon_model
-        = zg::Model::create<zg::VertexLayout::PosColorNormal>(moon).value();
-    auto moon_object = std::make_unique<zg::DrawableObject>(
-        std::move(moon_model), shader_program
-    );
-    moon_object->scale(0.008f);
-    moon_object->rotate_x(glm::radians(90.0f));
-    set_rotation(*moon_object, 0.5f);
-    moon_group->add(std::move(moon_object));
-
-    moon_orbit->add(std::move(moon_group));
-    earth_group->add(std::move(moon_orbit));
-    solar_system->add(std::move(earth_group));
     scene5->add_node(std::move(solar_system));
+
+    // LOGIN OBJECT
+    {
+        auto login_model = zg::Model::create<zg::VertexLayout::PosNormal>(
+                               std::span<const float>{points}
+        )
+                               .value();
+        auto login_object = std::make_unique<zg::DrawableObject>(
+            std::move(login_model), shader_program
+        );
+        login_object->add_transformation(
+            std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+        );
+        login_object->add_transformation(
+            std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+        );
+        login_object->add_transformation(std::make_unique<zg::Scale>(0.15f));
+        scene5->add_game_object(std::move(login_object));
+    }
 
     this->add_scene(std::move(scene5));
 }
