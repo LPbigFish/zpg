@@ -13,6 +13,9 @@ class Scene {
     graphics::Group root;
     std::vector<std::shared_ptr<graphics::ShaderProgram>> shader_programs;
 
+    friend class Renderer;
+    virtual auto render() -> void;
+
   public:
     Scene() = default;
     virtual ~Scene() = default;
@@ -39,8 +42,6 @@ class Scene {
         -> void {
         shader_programs.push_back(std::move(shader_program));
     }
-
-    virtual auto render() -> void;
 };
 
 } // namespace zpg::core

@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "models/SM_Model.hpp"
 #include "models/bushes.h"
 #include "models/earth.h"
 #include "models/moon.h"
@@ -19,6 +20,7 @@
 #include "zpg/graphics/Shader.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
 #include "zpg/graphics/Translation.hpp"
+#include "zpg/graphics/VertexArray.hpp"
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -35,6 +37,44 @@
 #include <glad/gl.h>
 #include <memory>
 #include <print>
+
+namespace {
+
+[[nodiscard]] constexpr auto make_colored_tree() -> std::vector<float> {
+    constexpr std::size_t SOURCE_STRIDE = 6;
+    constexpr std::size_t TRUNK_VERTICES = 36'444;
+
+    const std::span<const float> source{tree};
+
+    std::vector<float> result;
+    result.reserve(source.size() / SOURCE_STRIDE * 9);
+
+    for (std::size_t i = 0; i < source.size() / SOURCE_STRIDE; ++i) {
+        const auto offset = i * SOURCE_STRIDE;
+
+        const auto color = i < TRUNK_VERTICES
+                             ? glm::vec3{0.36f, 0.20f, 0.08f}  // Brown bark
+                             : glm::vec3{0.07f, 0.38f, 0.12f}; // Green leaves
+
+        result.insert(
+            result.end(),
+            {source[offset + 0],
+             source[offset + 1],
+             source[offset + 2],
+
+             color[0],
+             color[1],
+             color[2],
+
+             source[offset + 3],
+             source[offset + 4],
+             source[offset + 5]}
+        );
+    }
+
+    return result;
+}
+} // namespace
 
 namespace zpg::core {
 
@@ -377,6 +417,8 @@ auto Application::create_scenes() -> void {
                         / (static_cast<float>(RAND_MAX) / (max - min)));
             };
 
+            auto tree = make_colored_tree();
+
             for (std::size_t i = 0; i < 12; ++i) {
                 const auto base_position = glm::vec3{
                   RANDOM_BETWEEN(-0.95f, 0.95f),
@@ -387,7 +429,7 @@ auto Application::create_scenes() -> void {
                 // TREE at the base position
                 {
                     auto tree_model
-                        = zg::Model::create<zg::VertexLayout::PosColor>(
+                        = zg::Model::create<zg::VertexLayout::PosColorNormal>(
                               std::span<const float>{tree}
                         )
                               .value();
@@ -491,121 +533,137 @@ auto Application::create_scenes() -> void {
 
         this->add_scene(std::move(scene4));
     }
-
-    auto scene5 = std::make_unique<zc::Scene>();
-
-    scene5->add_shader_program(shader_program);
-
-    const auto spin = [](
-                          const float degrees_per_second
-                      ) -> std::unique_ptr<zg::RotationRepeat> {
-        return std::make_unique<zg::RotationRepeat>(
-            glm::vec3{0.f, 1.f, 0.f}, degrees_per_second
-        );
-    };
-
-    auto solar_system = std::make_unique<zg::Group>();
-    solar_system->set_transform(
-        std::make_shared<zg::RotationRepeat>(glm::vec3{0.f, 1.f, 0.f}, 1.0f)
-    );
-
-    // SUN
     {
-        auto sun_group = std::make_unique<zg::Group>();
-        auto sun_model
-            = zg::Model::create<zg::VertexLayout::PosColorNormal>(sun).value();
-        auto sun_object = std::make_unique<zg::DrawableObject>(
-            std::move(sun_model), shader_program
-        );
-        sun_object->add_transformation(std::make_unique<zg::Scale>(0.3f));
-        sun_object->add_transformation(spin(15.f));
-        sun_group->add(std::move(sun_object));
-        solar_system->add(std::move(sun_group));
-    }
+        auto scene5 = std::make_unique<zc::Scene>();
 
-    // EARTH
-    {
-        auto earth_group = std::make_unique<zg::Group>();
-        earth_group->set_transform(
-            std::make_shared<zg::Translation>(glm::vec3{0.75f, 0.f, 0.f})
+        scene5->add_shader_program(shader_program);
+
+        const auto spin = [](
+                              const float degrees_per_second
+                          ) -> std::unique_ptr<zg::RotationRepeat> {
+            return std::make_unique<zg::RotationRepeat>(
+                glm::vec3{0.f, 1.f, 0.f}, degrees_per_second
+            );
+        };
+
+        auto solar_system = std::make_unique<zg::Group>();
+        solar_system->set_transform(
+            std::make_shared<zg::RotationRepeat>(glm::vec3{0.f, 1.f, 0.f}, 1.0f)
         );
 
-        auto earth_model
-            = zg::Model::create<zg::VertexLayout::PosColorNormal>(earth)
-                  .value();
-        auto earth_object = std::make_unique<zg::DrawableObject>(
-            std::move(earth_model), shader_program
-        );
-        earth_object->add_transformation(std::make_unique<zg::Scale>(0.08f));
-        earth_object->add_transformation(spin(25.f));
-        earth_group->add(std::move(earth_object));
-
-        // MOON ORBIT rotates faster than the whole system -> nested groups
+        // SUN
         {
-            auto moon_orbit = std::make_unique<zg::Group>();
-            moon_orbit->set_transform(
-                std::make_shared<zg::RotationRepeat>(
-                    glm::vec3{0.f, 1.f, 0.f}, 6.0f
-                )
-            );
-
-            auto moon_group = std::make_unique<zg::Group>();
-            moon_group->set_transform(
-                std::make_shared<zg::Translation>(glm::vec3{0.15f, 0.f, 0.f})
-            );
-            auto moon_model
-                = zg::Model::create<zg::VertexLayout::PosColorNormal>(moon)
+            auto sun_group = std::make_unique<zg::Group>();
+            auto sun_model
+                = zg::Model::create<zg::VertexLayout::PosColorNormal>(sun)
                       .value();
-            auto moon_object = std::make_unique<zg::DrawableObject>(
-                std::move(moon_model), shader_program
+            auto sun_object = std::make_unique<zg::DrawableObject>(
+                std::move(sun_model), shader_program
             );
-            moon_object->add_transformation(
-                std::make_unique<zg::Scale>(0.008f)
-            );
-            moon_object->add_transformation(spin(40.f));
-            moon_group->add(std::move(moon_object));
-
-            moon_orbit->add(std::move(moon_group));
-            earth_group->add(std::move(moon_orbit));
+            sun_object->add_transformation(std::make_unique<zg::Scale>(0.3f));
+            sun_object->add_transformation(spin(15.f));
+            sun_group->add(std::move(sun_object));
+            solar_system->add(std::move(sun_group));
         }
 
-        solar_system->add(std::move(earth_group));
+        // EARTH
+        {
+            auto earth_group = std::make_unique<zg::Group>();
+            earth_group->set_transform(
+                std::make_shared<zg::Translation>(glm::vec3{0.75f, 0.f, 0.f})
+            );
+
+            auto earth_model
+                = zg::Model::create<zg::VertexLayout::PosColorNormal>(earth)
+                      .value();
+            auto earth_object = std::make_unique<zg::DrawableObject>(
+                std::move(earth_model), shader_program
+            );
+            earth_object->add_transformation(
+                std::make_unique<zg::Scale>(0.08f)
+            );
+            earth_object->add_transformation(spin(25.f));
+            earth_group->add(std::move(earth_object));
+
+            // MOON ORBIT rotates faster than the whole system -> nested groups
+            {
+                auto moon_orbit = std::make_unique<zg::Group>();
+                moon_orbit->set_transform(
+                    std::make_shared<zg::RotationRepeat>(
+                        glm::vec3{0.f, 1.f, 0.f}, 6.0f
+                    )
+                );
+
+                auto moon_group = std::make_unique<zg::Group>();
+                moon_group->set_transform(
+                    std::make_shared<zg::Translation>(
+                        glm::vec3{0.15f, 0.f, 0.f}
+                    )
+                );
+                auto moon_model
+                    = zg::Model::create<zg::VertexLayout::PosColorNormal>(moon)
+                          .value();
+                auto moon_object = std::make_unique<zg::DrawableObject>(
+                    std::move(moon_model), shader_program
+                );
+                moon_object->add_transformation(
+                    std::make_unique<zg::Scale>(0.008f)
+                );
+                moon_object->add_transformation(spin(40.f));
+                moon_group->add(std::move(moon_object));
+
+                moon_orbit->add(std::move(moon_group));
+                earth_group->add(std::move(moon_orbit));
+            }
+
+            solar_system->add(std::move(earth_group));
+        }
+
+        scene5->add_node(std::move(solar_system));
+
+        // LOGIN OBJECT
+        {
+            auto login_model = zg::Model::create<zg::VertexLayout::PosNormal>(
+                                   std::span<const float>{points}
+            )
+                                   .value();
+            auto login_object = std::make_unique<zg::DrawableObject>(
+                std::move(login_model), shader_program
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
+            );
+            login_object->add_transformation(
+                std::make_unique<zg::Scale>(0.15f)
+            );
+            scene5->add_game_object(std::move(login_object));
+        }
+
+        this->add_scene(std::move(scene5));
     }
 
-    scene5->add_node(std::move(solar_system));
-
-    // LOGIN OBJECT
     {
-        auto login_model = zg::Model::create<zg::VertexLayout::PosNormal>(
-                               std::span<const float>{points}
-        )
-                               .value();
-        auto login_object = std::make_unique<zg::DrawableObject>(
-            std::move(login_model), shader_program
-        );
-        login_object->add_transformation(
-            std::make_unique<zg::Translation>(glm::vec3{0.81f, -0.89f, 0.f})
-        );
-        login_object->add_transformation(
-            std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, 20.0f)
-        );
-        login_object->add_transformation(std::make_unique<zg::Scale>(0.15f));
-        scene5->add_game_object(std::move(login_object));
-    }
+        auto scene6 = std::make_unique<zc::Scene>();
+        scene6->add_shader_program(shader_program);
 
-    this->add_scene(std::move(scene5));
-}
+        {
+            auto slenderman
+                = zg::Model::create<zg::VertexLayout::PosColorNormal>(SM_Model)
+                      .value();
+            auto slender_object = std::make_unique<zg::DrawableObject>(
+                std::move(slenderman), shader_program
+            );
+            slender_object->add_transformation(
+                std::make_unique<zg::Rotation>(glm::vec3{0.f, 1.f, 0.f}, -90.f)
+            );
 
-auto Application::run(const std::function<void()>& loop_program) -> void {
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    while (!glfwWindowShouldClose(window->get())) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            scene6->add_game_object(std::move(slender_object));
+        }
 
-        loop_program();
-
-        glfwSwapBuffers(window->get());
-        glfwPollEvents();
+        this->add_scene(std::move(scene6));
     }
 }
 
