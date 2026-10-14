@@ -1,17 +1,16 @@
 #pragma once
 
 #include "zpg/graphics/Model.hpp"
-#include "zpg/graphics/Rotation.hpp"
-#include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
 #include "zpg/graphics/TransformationComposite.hpp"
-#include "zpg/graphics/Translation.hpp"
+#include <concepts>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/trigonometric.hpp>
 #include <memory>
 #include <numbers>
+#include <utility>
 
 constexpr auto RADIANTS = []() -> std::array<float, 360> {
     std::array<float, 360> res{};
@@ -39,13 +38,26 @@ class DrawableObject final: public SceneNode {
 
     auto
     add_transformation(std::unique_ptr<TransformationComponent> transformation)
-        -> void;
-    auto add_transformation(Scale&& scale) -> void;
-    auto add_transformation(Rotation&& rotation) -> void;
-    auto add_transformation(Translation&& translation) -> void;
+        -> DrawableObject&;
+
+    template<std::derived_from<TransformationComponent> T>
+    auto add_transformation(T transformation) -> DrawableObject& {
+        return add_transformation(
+            std::make_unique<T>(std::move(transformation))
+        );
+    }
+
     auto add_transformation_front(
         std::unique_ptr<TransformationComponent> transformation
-    ) -> void;
+    ) -> DrawableObject&;
+
+    template<std::derived_from<TransformationComponent> T>
+    auto add_transformation_front(T transformation) -> DrawableObject& {
+        return add_transformation_front(
+            std::make_unique<T>(std::move(transformation))
+        );
+    }
+
     [[nodiscard]] auto get_transformation_composite() const
         -> const std::shared_ptr<TransformationComposite>&;
 

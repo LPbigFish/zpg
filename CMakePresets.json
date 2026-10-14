@@ -8,6 +8,8 @@
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "ZPG_ENABLE_SANITIZERS": "ON",
         "ZPG_DISABLE_LEAK_DETECTION_FOR_TESTS": "ON",
         "ZPG_BUILD_TESTS": "ON"
@@ -20,6 +22,8 @@
       "binaryDir": "${sourceDir}/build/dev",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "ZPG_ENABLE_SANITIZERS": "OFF",
         "ZPG_BUILD_TESTS": "ON"
       },
@@ -31,6 +35,8 @@
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "ZPG_ENABLE_SANITIZERS": "OFF",
         "ZPG_BUILD_TESTS": "OFF"
       },

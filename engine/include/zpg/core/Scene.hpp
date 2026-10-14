@@ -4,14 +4,13 @@
 #include "zpg/graphics/Group.hpp"
 #include "zpg/graphics/SceneNode.hpp"
 #include <memory>
+#include <span>
 #include <utility>
-#include <vector>
 
 namespace zpg::core {
 
 class Scene {
     graphics::Group root;
-    std::vector<std::shared_ptr<graphics::ShaderProgram>> shader_programs;
 
     friend class Renderer;
     virtual auto render() -> void;
@@ -25,22 +24,26 @@ class Scene {
     Scene(Scene&&) = delete;
     auto operator=(Scene&&) -> Scene& = delete;
 
-    auto add_game_object(std::unique_ptr<graphics::DrawableObject> game_object)
-        -> void {
-        root.add(std::move(game_object));
+    template<graphics::VertexLayout Layout>
+    auto add_object(
+        std::span<const float> data,
+        std::shared_ptr<graphics::ShaderProgram> shader_program
+    ) -> graphics::DrawableObject& {
+        return root.add_object<Layout>(data, std::move(shader_program));
     }
 
     auto add_node(std::unique_ptr<graphics::SceneNode> node)
         -> graphics::SceneNode& {
-        auto& n = *node;
-        root.add(std::move(node));
-        return n;
+        return root.add(std::move(node));
     }
 
-    auto
-    add_shader_program(std::shared_ptr<graphics::ShaderProgram> shader_program)
-        -> void {
-        shader_programs.push_back(std::move(shader_program));
+    auto add_group() -> graphics::Group& {
+        return root.add_group();
+    }
+
+    template<std::derived_from<graphics::TransformationComponent> T>
+    auto add_group(T transformation) -> graphics::Group& {
+        return root.add_group(std::move(transformation));
     }
 };
 

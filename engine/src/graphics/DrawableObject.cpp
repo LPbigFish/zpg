@@ -27,36 +27,24 @@ DrawableObject::DrawableObject(DrawableObject&& other) noexcept:
 
 auto DrawableObject::add_transformation(
     std::unique_ptr<TransformationComponent> transformation
-) -> void {
+) -> DrawableObject& {
     if (_transformation->get_children().empty()
         && !is_node_transform_active()) {
         this->set_transform(_transformation);
     }
     _transformation->add(std::move(transformation));
-}
-
-auto DrawableObject::add_transformation(Scale&& scale) -> void {
-    this->add_transformation(std::make_unique<Scale>(std::move(scale)));
-}
-
-auto DrawableObject::add_transformation(Rotation&& rotation) -> void {
-    this->add_transformation(std::make_unique<Rotation>(std::move(rotation)));
-}
-
-auto DrawableObject::add_transformation(Translation&& translation) -> void {
-    this->add_transformation(
-        std::make_unique<Translation>(std::move(translation))
-    );
+    return *this;
 }
 
 auto DrawableObject::add_transformation_front(
     std::unique_ptr<TransformationComponent> transformation
-) -> void {
+) -> DrawableObject& {
     if (_transformation->get_children().empty()
         && !is_node_transform_active()) {
         this->set_transform(_transformation);
     }
     _transformation->add_front(std::move(transformation));
+    return *this;
 }
 
 auto DrawableObject::get_transformation_composite() const

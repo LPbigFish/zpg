@@ -10,8 +10,9 @@ auto SceneNode::set_draw_callback(
 
 auto SceneNode::set_transform(
     std::shared_ptr<TransformationComponent> transformation
-) -> void {
+) -> SceneNode& {
     node_transform = std::move(transformation);
+    return *this;
 }
 
 auto SceneNode::render(const glm::mat4& parent_matrix) -> void {

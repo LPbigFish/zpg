@@ -35,3 +35,17 @@ if(ZPG_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
+# SHADER VALIDATOR
+find_program(GLSLANG_VALIDATOR glslangValidator REQUIRED)
+file(GLOB ZPG_SHADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/shaders/*.vert"
+     "${CMAKE_SOURCE_DIR}/shaders/*.frag")
+
+add_custom_target(
+  zpg_validate_shaders ALL
+  COMMAND "${GLSLANG_VALIDATOR}" --enhanced-msgs --error-column ${ZPG_SHADERS}
+  DEPENDS ${ZPG_SHADERS}
+  COMMENT "Validating GLSL shaders"
+  COMMAND_EXPAND_LISTS VERBATIM)
+
+add_dependencies(zpg_sandbox zpg_validate_shaders)

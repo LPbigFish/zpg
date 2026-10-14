@@ -10,7 +10,9 @@ auto Group::render_in_world(const glm::mat4& mat) -> void {
     }
 }
 
-auto Group::add(std::unique_ptr<SceneNode> child) -> void {
+auto Group::add(std::unique_ptr<SceneNode> child) -> SceneNode& {
+    auto& result = *child;
     _children.push_back(std::move(child));
+    return result;
 }
 } // namespace zpg::graphics

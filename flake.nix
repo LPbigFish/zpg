@@ -28,6 +28,7 @@
               llvmPackages.lldb
               llvmPackages.lld
               cmake
+              ccache
               ninja
               pkg-config
               renderdoc

@@ -1,0 +1,21 @@
+[
+  {
+    "label": "Validate shaders",
+    "command": "nix",
+    "args": [
+      "develop",
+      "--command",
+      "cmake",
+      "--build",
+      "--preset",
+      "debug",
+      "--target",
+      "zpg_validate_shaders"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "on_success"
+  }
+]

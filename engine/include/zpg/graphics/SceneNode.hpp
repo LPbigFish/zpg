@@ -2,8 +2,10 @@
 
 #include "zpg/graphics/Transformation.hpp"
 #include "zpg/graphics/TransformationComponent.hpp"
+#include <concepts>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <memory>
+#include <utility>
 
 namespace zpg::graphics {
 
@@ -24,7 +26,13 @@ class SceneNode: public Transformation {
     set_draw_callback(const std::function<void(SceneNode&)>& callback) noexcept
         -> void;
     auto set_transform(std::shared_ptr<TransformationComponent> transformation)
-        -> void;
+        -> SceneNode&;
+
+    template<std::derived_from<TransformationComponent> T>
+    auto set_transform(T transformation) -> SceneNode& {
+        return set_transform(std::make_shared<T>(std::move(transformation)));
+    }
+
     auto render(const glm::mat4& parent_matrix) -> void;
     SceneNode() = default;
     SceneNode(const SceneNode&) = delete;
