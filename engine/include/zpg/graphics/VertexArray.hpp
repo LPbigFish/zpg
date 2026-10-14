@@ -16,6 +16,7 @@
 namespace zpg::graphics {
 
 enum class VertexLayout : std::uint8_t {
+    PosNormalColor, // 9 floats: position, normal, color
     PosColorNormal, // 9 floats: position, color, normal
     PosColor,       // 6 floats: position, color
     PosNormal,      // 6 floats: position, normal
@@ -38,7 +39,10 @@ class VertexArray {
     to_vertices(std::span<const float> data, VertexLayout layout)
         -> std::vector<Vertex> {
         const std::size_t stride
-            = layout == VertexLayout::PosColorNormal ? 9 : 6;
+            = layout == VertexLayout::PosColorNormal
+                   || layout == VertexLayout::PosNormalColor
+                ? 9
+                : 6;
 
         std::vector<Vertex> vertices;
         vertices.reserve(data.size() / stride);
@@ -47,7 +51,10 @@ class VertexArray {
             glm::vec3 color{1.0f};
             glm::vec3 normal{0.0f};
 
-            if (layout == VertexLayout::PosColorNormal) {
+            if (layout == VertexLayout::PosNormalColor) {
+                normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
+                color = glm::vec3{data[i + 6], data[i + 7], data[i + 8]};
+            } else if (layout == VertexLayout::PosColorNormal) {
                 color = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
                 normal = glm::vec3{data[i + 6], data[i + 7], data[i + 8]};
             } else if (layout == VertexLayout::PosColor) {

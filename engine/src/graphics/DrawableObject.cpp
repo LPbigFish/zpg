@@ -1,4 +1,8 @@
 #include "zpg/graphics/DrawableObject.hpp"
+#include "zpg/graphics/Rotation.hpp"
+#include "zpg/graphics/Scale.hpp"
+#include "zpg/graphics/Translation.hpp"
+#include <memory>
 #include <utility>
 
 namespace zpg::graphics {
@@ -29,6 +33,20 @@ auto DrawableObject::add_transformation(
         this->set_transform(_transformation);
     }
     _transformation->add(std::move(transformation));
+}
+
+auto DrawableObject::add_transformation(Scale&& scale) -> void {
+    this->add_transformation(std::make_unique<Scale>(std::move(scale)));
+}
+
+auto DrawableObject::add_transformation(Rotation&& rotation) -> void {
+    this->add_transformation(std::make_unique<Rotation>(std::move(rotation)));
+}
+
+auto DrawableObject::add_transformation(Translation&& translation) -> void {
+    this->add_transformation(
+        std::make_unique<Translation>(std::move(translation))
+    );
 }
 
 auto DrawableObject::add_transformation_front(

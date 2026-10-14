@@ -1,9 +1,12 @@
 #pragma once
 
 #include "zpg/graphics/Model.hpp"
+#include "zpg/graphics/Rotation.hpp"
+#include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
 #include "zpg/graphics/TransformationComposite.hpp"
+#include "zpg/graphics/Translation.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/trigonometric.hpp>
@@ -37,6 +40,9 @@ class DrawableObject final: public SceneNode {
     auto
     add_transformation(std::unique_ptr<TransformationComponent> transformation)
         -> void;
+    auto add_transformation(Scale&& scale) -> void;
+    auto add_transformation(Rotation&& rotation) -> void;
+    auto add_transformation(Translation&& translation) -> void;
     auto add_transformation_front(
         std::unique_ptr<TransformationComponent> transformation
     ) -> void;

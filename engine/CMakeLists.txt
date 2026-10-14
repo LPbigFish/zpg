@@ -9,7 +9,8 @@ add_library(
   src/core/Scene.cpp
   src/graphics/DrawableObject.cpp
   src/graphics/Group.cpp
-  src/core/Renderer.cpp)
+  src/core/Renderer.cpp
+  src/core/Camera.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)
