@@ -9,5 +9,8 @@ auto SceneBuilder::create_forest_clock_scene(
     scene->add_object<zg::VertexLayout::PosNormalColor>(
         clockModel, shader_program
     );
+
+    add_signature(scene, shader_program);
+
     return scene;
 }

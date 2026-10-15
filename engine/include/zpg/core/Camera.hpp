@@ -1,10 +1,8 @@
 #pragma once
-
-#include "zpg/graphics/Transformation.hpp"
-#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace zpg::core {
-class Camera: graphics::Transformation {
+class Camera {
     glm::mat4 viewMatrix{1};
     glm::mat4 projectionMatrix{1};
 

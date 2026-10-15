@@ -1,5 +1,4 @@
 #include "SceneBuilder.hpp"
-#include "models/TextModel.hpp"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Translation.hpp"
@@ -70,10 +69,7 @@ auto SceneBuilder::create_triangles_scene(
         .add_transformation(zg::Rotation{{0.f, 0.f, 1.f}, 90.0f})
         .add_transformation(zg::Translation{{0.45f, -0.45f, 0.f}});
 
-    scene->add_object<zg::VertexLayout::PosNormal>(text_model, shader_program)
-        .add_transformation(zg::Translation{{0.81f, -0.89f, 0.f}})
-        .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, 20.0f})
-        .add_transformation(zg::Scale{0.15f});
+    add_signature(scene, shader_program);
 
     return scene;
 }

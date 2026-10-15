@@ -1,9 +1,7 @@
 #include "SceneBuilder.hpp"
-#include "models/TextModel.hpp"
 #include "models/earth.h"
 #include "models/moon.h"
 #include "models/sun.h"
-#include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/RotationRepeat.hpp"
 #include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Translation.hpp"
@@ -40,10 +38,7 @@ auto SceneBuilder::create_solar_scene(
         .add_transformation(zg::Scale{0.008f})
         .add_transformation(spin(40.f));
 
-    scene->add_object<zg::VertexLayout::PosNormal>(text_model, shader_program)
-        .add_transformation(zg::Translation{{0.81f, -0.89f, 0.f}})
-        .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, 20.0f})
-        .add_transformation(zg::Scale{0.15f});
+    add_signature(scene, shader_program);
 
     return scene;
 }

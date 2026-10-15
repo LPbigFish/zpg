@@ -1,8 +1,7 @@
 #include "SceneBuilder.hpp"
-#include "models/TextModel.hpp"
+#include "models/text.h"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/Scale.hpp"
-#include "zpg/graphics/Translation.hpp"
 #include <memory>
 
 auto SceneBuilder::create_login_scene(
@@ -10,14 +9,11 @@ auto SceneBuilder::create_login_scene(
 ) -> std::unique_ptr<zc::Scene> {
     auto scene = std::make_unique<zc::Scene>();
 
-    scene->add_object<zg::VertexLayout::PosNormal>(text_model, shader_program)
+    scene->add_object<zg::VertexLayout::PosNormal>(TEXT_POINTS, shader_program)
         .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, 32.0f})
         .add_transformation(zg::Scale{0.5f});
 
-    scene->add_object<zg::VertexLayout::PosNormal>(text_model, shader_program)
-        .add_transformation(zg::Translation{{0.81f, -0.89f, 0.f}})
-        .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, 20.0f})
-        .add_transformation(zg::Scale{0.15f});
+    add_signature(scene, shader_program);
 
     return scene;
 }

@@ -17,5 +17,7 @@ auto SceneBuilder::create_slenderman_scene(
         .add_transformation(zg::Scale{0.7f})
         .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, -30.f});
 
+    add_signature(scene, shader_program);
+
     return scene;
 }

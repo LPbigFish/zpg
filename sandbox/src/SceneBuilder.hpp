@@ -32,4 +32,10 @@ struct SceneBuilder {
     static auto create_forest_clock_scene(
         const std::shared_ptr<zg::ShaderProgram>& shader_program
     ) -> std::unique_ptr<zc::Scene>;
+
+  private:
+    static auto add_signature(
+        const std::unique_ptr<zc::Scene>& scene,
+        const std::shared_ptr<zg::ShaderProgram>& shader_program
+    ) -> void;
 };
