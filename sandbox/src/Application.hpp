@@ -1,6 +1,7 @@
 #pragma once
 
 #include "zpg/core/GLFWContext.hpp"
+#include "zpg/core/InputManager.hpp"
 #include "zpg/core/Scene.hpp"
 #include "zpg/core/Window.hpp"
 #include <cstddef>
@@ -16,6 +17,8 @@ class Application {
 
     std::vector<std::unique_ptr<zpg::core::Scene>> scenes;
     std::size_t current_scene_index{0};
+
+    InputManager input_manager;
 
     static auto print_info() noexcept -> void;
 

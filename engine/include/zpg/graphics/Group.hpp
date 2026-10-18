@@ -3,6 +3,7 @@
 #include "zpg/graphics/DrawableObject.hpp"
 #include "zpg/graphics/SceneNode.hpp"
 #include <concepts>
+#include <functional>
 #include <memory>
 #include <span>
 #include <utility>
@@ -10,11 +11,17 @@
 
 namespace zpg::graphics {
 class Group final: public SceneNode {
+    using ProgramObserver
+        = std::function<void(const std::shared_ptr<ShaderProgram>&)>;
+
     std::vector<std::unique_ptr<SceneNode>> _children;
+    ProgramObserver observer;
 
     auto render_in_world(const glm::mat4& mat) -> void override;
 
   public:
+    explicit Group(ProgramObserver program_observer = {});
+
     auto add(std::unique_ptr<SceneNode> child) -> SceneNode&;
 
     template<std::derived_from<SceneNode> T>
@@ -29,6 +36,10 @@ class Group final: public SceneNode {
         std::span<const float> data,
         std::shared_ptr<ShaderProgram> shader_program
     ) -> DrawableObject& {
+        if (observer) {
+            observer(shader_program);
+        }
+
         return add(
             std::make_unique<DrawableObject>(
                 Model::create<Layout>(data).value(), std::move(shader_program)
@@ -36,9 +47,7 @@ class Group final: public SceneNode {
         );
     }
 
-    auto add_group() -> Group& {
-        return add(std::make_unique<Group>());
-    }
+    auto add_group() -> Group&;
 
     template<std::derived_from<TransformationComponent> T>
     auto add_group(T transformation) -> Group& {

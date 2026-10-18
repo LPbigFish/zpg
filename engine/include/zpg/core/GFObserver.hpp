@@ -36,10 +36,15 @@ struct CursorEvent {
     double y;
 };
 
+struct FrameBufferSizeEvent {
+    int width;
+    int height;
+};
+
 struct ButtonEvent {
     int button;
     int action;
-    int mode;
+    int mods;
 };
 
 struct Error {
@@ -87,5 +92,6 @@ using GlfwObserver = Observer<
     events::WindowSizeEvent,
     events::CursorEvent,
     events::ButtonEvent,
+    events::FrameBufferSizeEvent,
     events::Error>;
 } // namespace zpg::core::gfobserver

@@ -13,21 +13,67 @@ Window::Window():
         throw std::runtime_error{"Failed to initialize window"};
     }
 
+    using GO = gfobserver::GlfwObserver;
+    namespace events = gfobserver::events;
+
     glfwSetKeyCallback(
         window.get(),
         // NOLINTNEXTLINE
-        [](GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
-            -> void {
-            auto& observer = gfobserver::GlfwObserver::instance();
-
-            observer.notify(
-                gfobserver::events::KeyEvent{
+        [](GLFWwindow*, int key, int scancode, int action, int mods) -> void {
+            GO::instance().notify(
+                events::KeyEvent{
                   .key = key,
                   .scancode = scancode,
                   .action = action,
                   .mods = mods
                 }
             );
+        }
+    );
+
+    glfwSetMouseButtonCallback(
+        window.get(),
+        // NOLINTNEXTLINE
+        [](GLFWwindow*, int button, int action, int mods) -> void {
+            GO::instance().notify(
+                events::ButtonEvent{
+                  .button = button, .action = action, .mods = mods
+                }
+            );
+        }
+    );
+
+    glfwSetCursorPosCallback(
+        window.get(),
+        // NOLINTNEXTLINE
+        [](GLFWwindow*, double x, double y) {
+            GO::instance().notify(events::CursorEvent{.x = x, .y = y});
+        }
+    );
+
+    glfwSetWindowSizeCallback(
+        window.get(),
+        // NOLINTNEXTLINE
+        [](GLFWwindow*, int x, int y) -> void {
+            GO::instance().notify(
+                events::WindowSizeEvent{.width = x, .height = y}
+            );
+        }
+    );
+
+    glfwSetFramebufferSizeCallback(
+        window.get(),
+        // NOLINTNEXTLINE
+        [](GLFWwindow*, int x, int y) -> void {
+            GO::instance().notify(
+                events::FrameBufferSizeEvent{.width = x, .height = y}
+            );
+        }
+    );
+
+    glfwSetWindowFocusCallback(
+        window.get(), [](GLFWwindow*, int focused) -> void {
+            GO::instance().notify(events::WindowFocusEvent{focused});
         }
     );
 }

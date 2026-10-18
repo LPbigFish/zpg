@@ -8,11 +8,14 @@
 #include <memory>
 
 auto SceneBuilder::create_solar_scene(
-    const std::shared_ptr<zg::ShaderProgram>& shader_program
+    // NOLINTNEXTLINE
+    const std::shared_ptr<zg::ShaderProgram>& shader_program,
+    const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
 ) -> std::unique_ptr<zc::Scene> {
     auto scene = std::make_unique<zc::Scene>();
+    scene->observe_program(shader_program);
 
-    const auto spin = [](const float degrees_per_second) {
+    const auto spin = [](const float degrees_per_second) -> zg::RotationRepeat {
         return zg::RotationRepeat{{0.f, 1.f, 0.f}, degrees_per_second};
     };
 
@@ -38,7 +41,7 @@ auto SceneBuilder::create_solar_scene(
         .add_transformation(zg::Scale{0.008f})
         .add_transformation(spin(40.f));
 
-    add_signature(scene, shader_program);
+    add_signature(scene, fixed_shader_program);
 
     return scene;
 }

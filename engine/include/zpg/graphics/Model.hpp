@@ -11,8 +11,7 @@ namespace zpg::graphics {
 class Model {
     VertexArray vertex_array;
 
-    explicit Model(VertexArray&& vertex_array):
-        vertex_array{std::move(vertex_array)} {}
+    explicit Model(VertexArray&& vertex_array);
 
   public:
     Model() = delete;
@@ -32,16 +31,10 @@ class Model {
         return Model{std::move(*vertex_array)};
     }
 
-    [[nodiscard]] auto get_count() const noexcept -> GLsizei {
-        return vertex_array.get_count();
-    }
+    [[nodiscard]] auto get_count() const noexcept -> GLsizei;
 
-    auto bind() const noexcept -> void {
-        vertex_array.bind();
-    }
+    auto bind() const noexcept -> void;
 
-    static auto unbind() noexcept -> void {
-        glBindVertexArray(0);
-    }
+    static auto unbind() noexcept -> void;
 };
 } // namespace zpg::graphics

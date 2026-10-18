@@ -1,5 +1,4 @@
 #include "SceneBuilder.hpp"
-#include "models/sphere.h"
 #include "models/text.h"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/Scale.hpp"

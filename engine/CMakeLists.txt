@@ -1,8 +1,16 @@
 add_library(
   zpg_engine STATIC
   src/core/GLFWContext.cpp
+  src/core/InputManager.cpp
   src/core/Window.cpp
+  src/graphics/Model.cpp
+  src/graphics/Rotation.cpp
+  src/graphics/RotationRepeat.cpp
+  src/graphics/Scale.cpp
   src/graphics/ShaderProgram.cpp
+  src/graphics/TransformationComposite.cpp
+  src/graphics/Translation.cpp
+  src/graphics/VertexArray.cpp
   src/graphics/VertexBuffer.cpp
   src/graphics/Transformation.cpp
   src/graphics/SceneNode.cpp
@@ -10,7 +18,9 @@ add_library(
   src/graphics/DrawableObject.cpp
   src/graphics/Group.cpp
   src/core/Renderer.cpp
-  src/core/Camera.cpp)
+  src/core/Camera.cpp
+  src/utils/poisonDisk.cpp
+  src/utils/Time.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)

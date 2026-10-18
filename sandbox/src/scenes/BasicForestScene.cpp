@@ -1,7 +1,4 @@
 #include "SceneBuilder.hpp"
-#include "models/bushes.h"
-#include "models/sphere.h"
-#include "models/tree.h"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Translation.hpp"
@@ -60,12 +57,14 @@ auto SceneBuilder::create_basic_forest_scene(
     shader_program_2->unset_shader_program();
 
     srand(777);
-    constexpr auto RANDOM_BETWEEN = [](const float min, const float max) {
+    constexpr auto RANDOM_BETWEEN = [](const float min, const float max) -> float {
         return min
              + (static_cast<float>(rand())
                 / (static_cast<float>(RAND_MAX) / (max - min)));
     };
     const auto tree_model = make_colored_tree();
+
+    int clock_count = 0;
 
     for (std::size_t i = 0; i < 12; ++i) {
         const auto base_position = glm::vec3{
@@ -84,19 +83,25 @@ auto SceneBuilder::create_basic_forest_scene(
             )
             .add_transformation(zg::Scale{0.08f * RANDOM_BETWEEN(0.8f, 1.2f)});
 
-        scene->add_object<zg::VertexLayout::PosColor>(bushes, shader_program)
-            .add_transformation(zg::Translation{base_position})
-            .add_transformation(
-                zg::Translation{
-                  {RANDOM_BETWEEN(-0.08f, 0.08f),
-                   0.f,
-                   RANDOM_BETWEEN(-0.08f, 0.08f)}
-                }
-            )
-            .add_transformation(
-                zg::Rotation{{0.f, 1.f, 0.f}, RANDOM_BETWEEN(0.f, 360.f)}
-            )
-            .add_transformation(zg::Scale{0.25f * RANDOM_BETWEEN(0.8f, 1.2f)});
+        clock_count++;
+        if (clock_count == 1 || clock_count == 4) {
+            scene
+                ->add_object<zg::VertexLayout::PosColor>(bushes, shader_program)
+                .add_transformation(zg::Translation{base_position})
+                .add_transformation(
+                    zg::Translation{
+                      {RANDOM_BETWEEN(-0.08f, 0.08f),
+                       0.f,
+                       RANDOM_BETWEEN(-0.08f, 0.08f)}
+                    }
+                )
+                .add_transformation(
+                    zg::Rotation{{0.f, 1.f, 0.f}, RANDOM_BETWEEN(0.f, 360.f)}
+                )
+                .add_transformation(
+                    zg::Scale{0.25f * RANDOM_BETWEEN(0.8f, 1.2f)}
+                );
+        }
     }
 
     add_signature(scene, shader_program);

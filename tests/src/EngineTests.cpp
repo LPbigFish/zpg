@@ -1,6 +1,8 @@
+#include "zpg/core/InputManager.hpp"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/RotationRepeat.hpp"
 #include "zpg/graphics/Scale.hpp"
+#include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/TransformationComposite.hpp"
 #include "zpg/graphics/Translation.hpp"
 #include <cmath>
@@ -28,6 +30,15 @@ const glm::vec3 x_axis{1.f, 0.f, 0.f};
 const glm::vec3 y_axis{0.f, 1.f, 0.f};
 const glm::vec3 z_axis{0.f, 0.f, 1.f};
 
+class TestSceneNode final: public zg::SceneNode {
+    auto render_in_world(const glm::mat4& matrix) -> void override {
+        rendered_matrix = matrix;
+    }
+
+  public:
+    glm::mat4 rendered_matrix{1.f};
+};
+
 auto rotation_angle_z(const glm::mat4& m) -> float {
     return std::atan2(m[1][0], m[0][0]);
 }
@@ -38,6 +49,29 @@ auto rotation_angle_z(const glm::mat4& m) -> float {
 TEST(TransformationComposite, EmptyIsIdentity) {
     auto composite = zg::TransformationComposite{};
     EXPECT_TRUE(matrices_equal(composite.get_matrix(), glm::mat4{1.f}));
+}
+
+TEST(SceneNode, SubclassesInheritTransformationComposite) {
+    auto node = TestSceneNode{};
+    node.add_transformation(zg::Translation{{2.f, 0.f, 0.f}});
+    node.render(glm::mat4{1.f});
+
+    const auto expected
+        = glm::translate(glm::mat4{1.f}, glm::vec3{2.f, 0.f, 0.f});
+    EXPECT_TRUE(matrices_equal(node.rendered_matrix, expected));
+}
+
+TEST(InputManager, AppliesMouseDeltaToCamera) {
+    auto input = zpg::core::InputManager{};
+    auto camera = zpg::core::Camera{};
+    const auto initial_front = camera.front();
+
+    input.on_button({GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS, 0});
+    input.on_cursor({10.0, 10.0});
+    input.on_cursor({20.0, 5.0});
+    input.update(camera, 0.f);
+
+    EXPECT_FALSE(glm::all(glm::equal(camera.front(), initial_front)));
 }
 
 // Children multiply left to right in the order they were added: adding

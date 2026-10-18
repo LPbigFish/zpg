@@ -1,16 +1,16 @@
 #pragma once
+#include "zpg/core/CameraObserver.hpp"
 #include "zpg/core/GlType.hpp"
 #include "zpg/graphics/Shader.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <print>
 #include <string_view>
 #include <type_traits>
 
 namespace zpg::graphics {
 
-class ShaderProgram {
+class ShaderProgram final: public core::CameraObserver {
     GLuint id;
 
   public:
@@ -26,6 +26,9 @@ class ShaderProgram {
 
     auto set_shader_program() const noexcept -> void;
     auto unset_shader_program() const noexcept -> void;
+
+    auto on_camera_changed(const glm::mat4& view, const glm::mat4& projection)
+        -> void override;
 
     [[nodiscard]] auto get_uniform_location(std::string_view path) const
         -> GLint;
@@ -114,16 +117,7 @@ class ShaderProgram {
         }
     }
 
-    auto set_uniform(GLint location, const glm::mat4& matrix) -> void {
-        if (location == -1) {
-            std::println(
-                stderr, "Invalid location for uniform in shader program: {}", id
-            );
-            return;
-        }
-
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
-    }
+    auto set_uniform(GLint location, const glm::mat4& matrix) -> void;
 };
 
 } // namespace zpg::graphics

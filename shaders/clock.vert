@@ -2,46 +2,39 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 color;
-layout(location = 2) in vec3 normal;
 
-out vec3 vertexColor;
-out vec3 vertexNormal;
+flat out vec3 vertexColor;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-uniform vec3 clockTime; // hours, minutes, seconds
+uniform vec3 clockTime;
 
-const float PI = 3.14159265359;
-
-mat3 rotateZ(float angle) {
-    float c = cos(angle);
-    float s = sin(angle);
-
-    return mat3(c, s, 0.0, -s, c, 0.0, 0.0, 0.0, 1.0);
-}
+const float two_pi = 2 * 3.14159265;
 
 void main() {
-    float angle = 0.0;
+    float phase = 0.0;
 
     if (all(equal(color, vec3(0.0, 0.0, 1.0)))) {
-        // Blue = hour
-        angle
-            = -2.0 * PI * (mod(clockTime.x, 12.0) + clockTime.y / 60.0) / 12.0;
+        phase = clockTime.x;
     } else if (all(equal(color, vec3(0.0, 1.0, 0.0)))) {
-        // Green = minute
-        angle = -2.0 * PI * (clockTime.y + clockTime.z / 60.0) / 60.0;
+        phase = clockTime.y;
     } else if (all(equal(color, vec3(1.0, 0.0, 0.0)))) {
-        // Red = second
-        angle = -2.0 * PI * clockTime.z / 60.0;
+        phase = clockTime.z;
     }
 
-    mat3 rotation = rotateZ(angle);
+    float angle = -two_pi * phase;
+    float c = cos(angle);
+    float s = sin(angle);
+    mat2 rotation = mat2(c, s, -s, c);
+
+    vec3 transformedPosition = position;
+    transformedPosition.xy = rotation * position.xy;
+    transformedPosition.x = -transformedPosition.x;
 
     vertexColor = color;
-    vertexNormal = rotation * normal;
 
     gl_Position = projectionMatrix * viewMatrix * modelMatrix
-                * vec4(rotation * position, 1.0);
+                * vec4(transformedPosition, 1.0);
 }
