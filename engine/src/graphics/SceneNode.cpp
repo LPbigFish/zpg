@@ -22,24 +22,24 @@ auto SceneNode::set_transform(
 }
 
 auto SceneNode::add_transformation(
-    std::unique_ptr<TransformationComponent> component
+    std::unique_ptr<TransformationComponent> transformation
 ) -> SceneNode& {
     if (_transformation->get_children().empty()
         && !is_node_transform_active()) {
         set_transform(_transformation);
     }
-    _transformation->add(std::move(component));
+    _transformation->add(std::move(transformation));
     return *this;
 }
 
 auto SceneNode::add_transformation_front(
-    std::unique_ptr<TransformationComponent> component
+    std::unique_ptr<TransformationComponent> transformation
 ) -> SceneNode& {
     if (_transformation->get_children().empty()
         && !is_node_transform_active()) {
         set_transform(_transformation);
     }
-    _transformation->add_front(std::move(component));
+    _transformation->add_front(std::move(transformation));
     return *this;
 }
 
