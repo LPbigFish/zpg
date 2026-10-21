@@ -6,6 +6,7 @@
 #include "zpg/graphics/Shader.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <glm/ext/quaternion_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -143,6 +144,10 @@ auto Application::create_scenes() -> void {
     auto vs_clock = zg::VertexShader::create("shaders/clock.vert");
     auto fs_clock = zg::FragmentShader::create("shaders/clock.frag");
 
+    auto fs_tree = zg::FragmentShader::create("shaders/tree.frag");
+    auto vs_phong = zg::VertexShader::create("shaders/phong.vert");
+    auto fs_phong = zg::FragmentShader::create("shaders/phong.frag");
+
     if (!vs) {
         std::println(stderr, "{}", vs.error());
         return;
@@ -167,13 +172,21 @@ auto Application::create_scenes() -> void {
         std::println(stderr, "{}", fs_clock.error());
         return;
     }
+    if (!fs_tree) {
+        std::println(stderr, "{}", fs_tree.error());
+        return;
+    }
 
     auto shader_program = std::make_shared<zg::ShaderProgram>(*vs, *fs);
     auto fixed_shader_program
         = std::make_shared<zg::ShaderProgram>(*vs_fixed, *fs);
+    auto tree_program = std::make_shared<zg::ShaderProgram>(*vs, *fs_tree);
     auto shader_program_2 = std::make_shared<zg::ShaderProgram>(*vs, *fs_solid);
     auto clock_shader_program
         = std::make_shared<zg::ShaderProgram>(*vs_clock, *fs_clock);
+
+    auto phong_program
+        = std::make_shared<zg::ShaderProgram>(*vs_phong, *fs_phong);
 
     // Scene 1
     auto scene1 = SceneBuilder::create_triangles_scene(fixed_shader_program);
@@ -182,6 +195,10 @@ auto Application::create_scenes() -> void {
     // Scene 2
     auto scene2 = SceneBuilder::create_ball_scene(fixed_shader_program);
     this->add_scene(std::move(scene2));
+
+    // SCENE 3
+    auto scene3 = SceneBuilder::create_four_ball_scene(phong_program);
+    this->add_scene(std::move(scene3));
 
     // Scene 4 OBJECTS
     auto scene4 = SceneBuilder::create_login_scene(fixed_shader_program);
@@ -195,7 +212,7 @@ auto Application::create_scenes() -> void {
 
     // SCENE 7 - clock
     auto scene7 = SceneBuilder::create_forest_clock_scene(
-        shader_program, fixed_shader_program, clock_shader_program
+        shader_program, tree_program, fixed_shader_program, clock_shader_program
     );
     this->add_scene(std::move(scene7));
 

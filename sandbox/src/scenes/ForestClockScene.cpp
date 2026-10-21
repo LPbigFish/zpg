@@ -72,6 +72,7 @@ namespace {
 auto SceneBuilder::create_forest_clock_scene(
     // NOLINTNEXTLINE
     const std::shared_ptr<zg::ShaderProgram>& shader_program,
+    const std::shared_ptr<zg::ShaderProgram>& tree_program,
     const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program,
     const std::shared_ptr<zg::ShaderProgram>& clock_shader_program
 ) -> std::unique_ptr<zc::Scene> {
@@ -110,7 +111,7 @@ auto SceneBuilder::create_forest_clock_scene(
 
         tree_group
             .add_object<zg::VertexLayout::PosColorNormal>(
-                tree_model, shader_program
+                tree_model, tree_program
             )
             .add_transformation(zg::Translation{{0, -1, 0}})
             .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, rotation(random)})

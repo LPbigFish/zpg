@@ -4,6 +4,12 @@
 
 ## Build Root
 
+Enter the development shell with `nix develop` (or `direnv reload`). After
+updating `flake.lock`, run `cmake --fresh --preset debug` to replace cached
+compiler and library paths. The shell's glibc must support the host graphics
+driver; older nixpkgs can cause EGL/GLX initialization to fail even when host
+OpenGL tools work.
+
 ```sh
 cmake --preset debug
   cmake --build --preset debug

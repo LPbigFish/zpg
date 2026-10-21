@@ -38,8 +38,13 @@ struct SceneBuilder {
 
     static auto create_forest_clock_scene(
         const std::shared_ptr<zg::ShaderProgram>& shader_program,
+        const std::shared_ptr<zg::ShaderProgram>& tree_program,
         const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program,
         const std::shared_ptr<zg::ShaderProgram>& clock_shader_program
+    ) -> std::unique_ptr<zc::Scene>;
+
+    static auto create_four_ball_scene(
+        const std::shared_ptr<zg::ShaderProgram>& phong_program
     ) -> std::unique_ptr<zc::Scene>;
 
   private:
