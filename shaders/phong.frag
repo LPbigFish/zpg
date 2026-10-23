@@ -8,13 +8,24 @@ in vec3 worldNormal;
 
 out vec4 FragColor;
 
+uniform mat4 viewMatrix = mat4(1.0);
+uniform vec3 lightPosition = vec3(10.0, 10.0, 10.0);
+
+uniform float shininess = 32.0;
+
 void main() {
-    vec3 lightPosition = vec3(10.0, 10.0, 10.0);
-    float dotProduct = max(
-        dot(normalize(lightPosition - worldPosition), normalize(worldNormal)),
-        0.0
-    );
-    vec4 diffuse = dotProduct * vec4(0.385, 0.647, 0.812, 1.0);
-    vec4 ambient = vec4(0.1, 0.1, 0.1, 1.0);
-    FragColor = ambient + diffuse;
+    vec3 normal = normalize(worldNormal);
+    vec3 lightDir = normalize(lightPosition - worldPosition);
+    vec3 viewPos = vec3(inverse(viewMatrix)[3]);
+    vec3 viewDir = normalize(viewPos - worldPosition);
+    vec3 reflectionDir = reflect(-lightDir, normal);
+
+    float dotProduct = max(dot(lightDir, normal), 0.0);
+    float spec = pow(max(dot(viewDir, reflectionDir), 0.0), shininess);
+
+    vec3 ambient = vec3(0.1);
+    vec3 diffuse = dotProduct * vec3(0.385, 0.647, 0.812);
+    ;
+    vec3 specular = 0.5 * spec * vec3(1.0); // specularStrength * spec * color
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
 }

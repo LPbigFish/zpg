@@ -11,7 +11,7 @@ driver; older nixpkgs can cause EGL/GLX initialization to fail even when host
 OpenGL tools work.
 
 ```sh
-cmake --preset debug
+  cmake --preset debug
   cmake --build --preset debug
 ```
 

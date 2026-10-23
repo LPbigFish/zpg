@@ -44,7 +44,10 @@ struct SceneBuilder {
     ) -> std::unique_ptr<zc::Scene>;
 
     static auto create_four_ball_scene(
-        const std::shared_ptr<zg::ShaderProgram>& phong_program
+        const std::shared_ptr<zg::ShaderProgram>& ambient_program,
+        const std::shared_ptr<zg::ShaderProgram>& lambert_program,
+        const std::shared_ptr<zg::ShaderProgram>& phong_program,
+        const std::shared_ptr<zg::ShaderProgram>& blinn_program
     ) -> std::unique_ptr<zc::Scene>;
 
   private:

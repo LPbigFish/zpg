@@ -145,8 +145,11 @@ auto Application::create_scenes() -> void {
     auto fs_clock = zg::FragmentShader::create("shaders/clock.frag");
 
     auto fs_tree = zg::FragmentShader::create("shaders/tree.frag");
-    auto vs_phong = zg::VertexShader::create("shaders/phong.vert");
+    auto vs_lighting = zg::VertexShader::create("shaders/lighting.vert");
+    auto fs_ambient = zg::FragmentShader::create("shaders/ambient.frag");
+    auto fs_lambert = zg::FragmentShader::create("shaders/lambert.frag");
     auto fs_phong = zg::FragmentShader::create("shaders/phong.frag");
+    auto fs_blinn = zg::FragmentShader::create("shaders/blinn.frag");
 
     if (!vs) {
         std::println(stderr, "{}", vs.error());
@@ -176,6 +179,26 @@ auto Application::create_scenes() -> void {
         std::println(stderr, "{}", fs_tree.error());
         return;
     }
+    if (!vs_lighting) {
+        std::println(stderr, "{}", vs_lighting.error());
+        return;
+    }
+    if (!fs_ambient) {
+        std::println(stderr, "{}", fs_ambient.error());
+        return;
+    }
+    if (!fs_lambert) {
+        std::println(stderr, "{}", fs_lambert.error());
+        return;
+    }
+    if (!fs_phong) {
+        std::println(stderr, "{}", fs_phong.error());
+        return;
+    }
+    if (!fs_blinn) {
+        std::println(stderr, "{}", fs_blinn.error());
+        return;
+    }
 
     auto shader_program = std::make_shared<zg::ShaderProgram>(*vs, *fs);
     auto fixed_shader_program
@@ -185,8 +208,14 @@ auto Application::create_scenes() -> void {
     auto clock_shader_program
         = std::make_shared<zg::ShaderProgram>(*vs_clock, *fs_clock);
 
+    auto ambient_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_ambient);
+    auto lambert_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_lambert);
     auto phong_program
-        = std::make_shared<zg::ShaderProgram>(*vs_phong, *fs_phong);
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong);
+    auto blinn_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_blinn);
 
     // Scene 1
     auto scene1 = SceneBuilder::create_triangles_scene(fixed_shader_program);
@@ -197,7 +226,9 @@ auto Application::create_scenes() -> void {
     this->add_scene(std::move(scene2));
 
     // SCENE 3
-    auto scene3 = SceneBuilder::create_four_ball_scene(phong_program);
+    auto scene3 = SceneBuilder::create_four_ball_scene(
+        ambient_program, lambert_program, phong_program, blinn_program
+    );
     this->add_scene(std::move(scene3));
 
     // Scene 4 OBJECTS
