@@ -227,7 +227,11 @@ auto Application::create_scenes() -> void {
 
     // SCENE 3
     auto scene3 = SceneBuilder::create_four_ball_scene(
-        ambient_program, lambert_program, phong_program, blinn_program
+        ambient_program,
+        lambert_program,
+        phong_program,
+        blinn_program,
+        fixed_shader_program
     );
     this->add_scene(std::move(scene3));
 
@@ -237,7 +241,7 @@ auto Application::create_scenes() -> void {
 
     // SCENE 5
     auto scene5 = SceneBuilder::create_solar_scene(
-        shader_program, fixed_shader_program
+        ambient_program, phong_program, blinn_program, fixed_shader_program
     );
     this->add_scene(std::move(scene5));
 

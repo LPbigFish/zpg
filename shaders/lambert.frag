@@ -10,11 +10,15 @@ out vec4 FragColor;
 
 uniform vec3 lightPosition = vec3(10.0, 10.0, 10.0);
 
+uniform vec3 color = -vec3(1.0);
+
 void main() {
     vec3 normal = normalize(worldNormal);
     vec3 lightDir = normalize(lightPosition - worldPosition);
 
+    vec3 u_color = (all(equal(color, -vec3(1.0))) ? vertexColor : color);
+
     float dotProduct = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = dotProduct * vec3(0.385, 0.647, 0.812);
+    vec3 diffuse = dotProduct * u_color;
     FragColor = vec4(diffuse, 1.0);
 }

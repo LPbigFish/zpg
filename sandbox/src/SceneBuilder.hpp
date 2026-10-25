@@ -28,7 +28,9 @@ struct SceneBuilder {
     create_login_scene(const std::shared_ptr<zg::ShaderProgram>& shader_program)
         -> std::unique_ptr<zc::Scene>;
     static auto create_solar_scene(
-        const std::shared_ptr<zg::ShaderProgram>& shader_program,
+        const std::shared_ptr<zg::ShaderProgram>& ambient_program,
+        const std::shared_ptr<zg::ShaderProgram>& phong_program,
+        const std::shared_ptr<zg::ShaderProgram>& blinn_program,
         const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
     static auto create_slenderman_scene(
@@ -47,7 +49,8 @@ struct SceneBuilder {
         const std::shared_ptr<zg::ShaderProgram>& ambient_program,
         const std::shared_ptr<zg::ShaderProgram>& lambert_program,
         const std::shared_ptr<zg::ShaderProgram>& phong_program,
-        const std::shared_ptr<zg::ShaderProgram>& blinn_program
+        const std::shared_ptr<zg::ShaderProgram>& blinn_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
 
   private:

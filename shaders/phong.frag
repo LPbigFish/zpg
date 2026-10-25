@@ -13,6 +13,8 @@ uniform vec3 lightPosition = vec3(10.0, 10.0, 10.0);
 
 uniform float shininess = 32.0;
 
+uniform vec3 color = -vec3(1.0);
+
 void main() {
     vec3 normal = normalize(worldNormal);
     vec3 lightDir = normalize(lightPosition - worldPosition);
@@ -20,12 +22,16 @@ void main() {
     vec3 viewDir = normalize(viewPos - worldPosition);
     vec3 reflectionDir = reflect(-lightDir, normal);
 
-    float dotProduct = max(dot(lightDir, normal), 0.0);
-    float spec = pow(max(dot(viewDir, reflectionDir), 0.0), shininess);
+    vec3 u_color = (all(equal(color, -vec3(1.0))) ? vertexColor : color);
 
-    vec3 ambient = vec3(0.1);
-    vec3 diffuse = dotProduct * vec3(0.385, 0.647, 0.812);
-    ;
-    vec3 specular = 0.5 * spec * vec3(1.0); // specularStrength * spec * color
+    float dotProduct = max(dot(lightDir, normal), 0.0);
+    float spec = dotProduct > 0.0
+                   ? pow(max(dot(viewDir, reflectionDir), 0.0), shininess)
+                   : 0.0;
+
+    vec3 ambient = 0.1 * u_color;
+    vec3 diffuse = dotProduct * u_color;
+    vec3 specular
+        = 0.5 * spec * vec3(1.0); // specularStrength * spec * light_color
     FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
