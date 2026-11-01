@@ -14,14 +14,22 @@ uniform mat4 modelMatrix = mat4(1.0);
 uniform mat4 viewMatrix = mat4(1.0);
 uniform mat4 projectionMatrix = mat4(1.0);
 
+uniform mat3 normalMatrix = mat3(1.0);
+uniform bool wrongNormals = false;
+
 void main() {
     vertexColor = color;
     vertexNormal = normal;
 
-    gl_Position
-        = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+    if (wrongNormals) {
+        worldNormal = normalize(mat3(modelMatrix) * normal);
+    } else {
+        worldNormal = normalize(normalMatrix * normal);
+    }
 
-    worldNormal = normalize(mat3(modelMatrix) * normal);
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
 
-    worldPosition = (modelMatrix * vec4(position, 1.0f)).xyz;
+    worldPosition = worldPos.xyz;
+
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
 }

@@ -1,6 +1,7 @@
 #include "Application.hpp"
 #include "SceneBuilder.hpp"
 #include "zpg/core/GFObserver.hpp"
+#include "zpg/core/GlType.hpp"
 #include "zpg/core/Renderer.hpp"
 #include "zpg/core/Scene.hpp"
 #include "zpg/graphics/Shader.hpp"
@@ -8,10 +9,12 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <format>
 #include <glm/ext/quaternion_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/trigonometric.hpp>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 #define GLAD_GL_IMPLEMENTATION
 #include <GLFW/glfw3.h>
@@ -72,6 +75,7 @@ auto Application::init() -> void {
     Renderer::set_viewport(width, height);
 
     Application::print_info();
+    Application::refresh_window_title();
 }
 
 auto Application::create_callbacks() -> void {
@@ -97,16 +101,64 @@ auto Application::create_callbacks() -> void {
                 this->switch_scene(index);
                 std::println("Switched to scene {}", index);
             }
+
+            if (event.action != GLFW_PRESS) {
+                return;
+            }
+
+            // Task 2c/2d: break/restore the resize handling on demand.
+            switch (event.key) {
+                case GLFW_KEY_F3:
+                    this->update_viewport_on_resize
+                        = !this->update_viewport_on_resize;
+                    if (this->update_viewport_on_resize) {
+                        int width{};
+                        int height{};
+                        glfwGetFramebufferSize(
+                            this->window->get(), &width, &height
+                        );
+                        Renderer::set_viewport(width, height);
+                    }
+                    std::println(
+                        "Viewport update on resize: {}",
+                        this->update_viewport_on_resize ? "ON" : "OFF"
+                    );
+                    this->refresh_window_title();
+                    break;
+                case GLFW_KEY_F4:
+                    this->update_projection_on_resize
+                        = !this->update_projection_on_resize;
+                    if (this->update_projection_on_resize
+                        && !this->scenes.empty()) {
+                        int width{};
+                        int height{};
+                        glfwGetFramebufferSize(
+                            this->window->get(), &width, &height
+                        );
+                        this->scenes[this->current_scene_index]
+                            ->get_camera()
+                            .resize(width, height);
+                    }
+                    std::println(
+                        "Projection update on resize: {}",
+                        this->update_projection_on_resize ? "ON" : "OFF"
+                    );
+                    this->refresh_window_title();
+                    break;
+                default: break;
+            }
         }
     );
 
     // FRAME BUFFER RESIZE
     observer.subscribe<events::FrameBufferSizeEvent>(
         [this](const events::FrameBufferSizeEvent& event) -> void {
-            Renderer::set_viewport(event.width, event.height);
+            if (this->update_viewport_on_resize) {
+                Renderer::set_viewport(event.width, event.height);
+            }
 
-            if (!scenes.empty()) {
-                scenes[current_scene_index]->get_camera().resize(
+            if (this->update_projection_on_resize && !this->scenes.empty()) {
+                this->scenes[this->current_scene_index]->get_camera().resize(
                     event.width, event.height
                 );
             }
@@ -132,8 +184,22 @@ auto Application::switch_scene(std::size_t index) -> void {
 
     auto& scene = *scenes[current_scene_index];
 
-    scene.get_camera().resize(width, height);
+    if (this->update_projection_on_resize) {
+        scene.get_camera().resize(width, height);
+    }
     scene.activate();
+}
+
+auto Application::refresh_window_title() const -> void {
+    glfwSetWindowTitle(
+        this->window->get(),
+        std::format(
+            "ZPG  [F3 viewport:{}]  [F4 perspektiva:{}]",
+            this->update_viewport_on_resize ? "on" : "off",
+            this->update_projection_on_resize ? "on" : "off"
+        )
+            .c_str()
+    );
 }
 
 auto Application::create_scenes() -> void {
@@ -150,6 +216,10 @@ auto Application::create_scenes() -> void {
     auto fs_lambert = zg::FragmentShader::create("shaders/lambert.frag");
     auto fs_phong = zg::FragmentShader::create("shaders/phong.frag");
     auto fs_blinn = zg::FragmentShader::create("shaders/blinn.frag");
+    auto fs_normals = zg::FragmentShader::create("shaders/normals.frag");
+    auto fs_phong_wrong = zg::FragmentShader::create("shaders/phongWrong.frag");
+    auto fs_forest = zg::FragmentShader::create("shaders/forestNight.frag");
+    auto fs_unlit = zg::FragmentShader::create("shaders/unlit.frag");
 
     if (!vs) {
         std::println(stderr, "{}", vs.error());
@@ -199,6 +269,22 @@ auto Application::create_scenes() -> void {
         std::println(stderr, "{}", fs_blinn.error());
         return;
     }
+    if (!fs_normals) {
+        std::println(stderr, "{}", fs_normals.error());
+        return;
+    }
+    if (!fs_phong_wrong) {
+        std::println(stderr, "{}", fs_phong_wrong.error());
+        return;
+    }
+    if (!fs_forest) {
+        std::println(stderr, "{}", fs_forest.error());
+        return;
+    }
+    if (!fs_unlit) {
+        std::println(stderr, "{}", fs_unlit.error());
+        return;
+    }
 
     auto shader_program = std::make_shared<zg::ShaderProgram>(*vs, *fs);
     auto fixed_shader_program
@@ -216,6 +302,46 @@ auto Application::create_scenes() -> void {
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong);
     auto blinn_program
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_blinn);
+
+    // Wrong/Correct normals
+    auto normals_wrong_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_normals);
+    auto normals_right_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_normals);
+
+    normals_wrong_program->set_shader_program();
+    normals_wrong_program->set_uniform(
+        normals_wrong_program->get_uniform_location("wrongNormals"), 1
+    );
+    normals_wrong_program->unset_shader_program();
+
+    // Task 2: wrong phong (specular leaks to the back side) vs fixed phong
+    // (phong.frag clamps). shininess = 1 makes the leak obvious.
+    auto specular_wrong_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong_wrong);
+    auto specular_right_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong);
+
+    for (const auto& program :
+         {specular_wrong_program, specular_right_program}) {
+        program->set_shader_program();
+        program->set_uniform(program->get_uniform_location("shininess"), 1.f);
+        program->set_uniform(
+            program->get_uniform_location("lightPosition"), 0.f, 0.f, -6.f
+        );
+        program->set_uniform(
+            program->get_uniform_location("color"), 0.85f, 0.25f, 0.15f
+        );
+        program->unset_shader_program();
+    }
+
+    // Task 3: night forest programs (attenuated firefly point light).
+    auto forest_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_forest);
+    auto ground_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_forest);
+    auto firefly_program
+        = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_unlit);
 
     // Scene 1
     auto scene1 = SceneBuilder::create_triangles_scene(fixed_shader_program);
@@ -250,6 +376,24 @@ auto Application::create_scenes() -> void {
         shader_program, tree_program, fixed_shader_program, clock_shader_program
     );
     this->add_scene(std::move(scene7));
+
+    // SCENE 7 - normals: wrong vs correct transform (key 7)
+    auto scene7_normals = SceneBuilder::create_normals_scene(
+        normals_wrong_program, normals_right_program, fixed_shader_program
+    );
+    this->add_scene(std::move(scene7_normals));
+
+    // SCENE 8 - specular: bleed-through vs clipped back side (key 8)
+    auto scene8 = SceneBuilder::create_specular_scene(
+        specular_wrong_program, specular_right_program, fixed_shader_program
+    );
+    this->add_scene(std::move(scene8));
+
+    // SCENE 9 - night forest with firefly point light (key 9)
+    auto scene9 = SceneBuilder::create_night_forest_scene(
+        forest_program, ground_program, firefly_program, fixed_shader_program
+    );
+    this->add_scene(std::move(scene9));
 
     this->current_scene_index = this->scenes.size() - 1;
 }

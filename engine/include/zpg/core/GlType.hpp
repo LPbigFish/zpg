@@ -12,6 +12,10 @@ template<> struct gl_t<double> {
     static constexpr GLenum V = GL_DOUBLE;
 };
 
+template<> struct gl_t<bool> {
+    static constexpr GLenum V = GL_BOOL;
+};
+
 template<> struct gl_t<float> {
     static constexpr GLenum V = GL_FLOAT;
 };
@@ -44,5 +48,6 @@ template<> struct gl_t<std::bool_constant<false>> {
 template<typename T>
 concept GlTypeConstrain = std::same_as<std::remove_cvref_t<T>, GLint>
                        || std::same_as<std::remove_cvref_t<T>, GLuint>
-                       || std::same_as<std::remove_cvref_t<T>, GLfloat>;
+                       || std::same_as<std::remove_cvref_t<T>, GLfloat>
+                       || std::same_as<std::remove_cvref_t<T>, GLboolean>;
 } // namespace zpg::core

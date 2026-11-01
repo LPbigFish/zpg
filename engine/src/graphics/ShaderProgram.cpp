@@ -69,4 +69,16 @@ auto ShaderProgram::set_uniform(GLint location, const glm::mat4& matrix)
 
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
+
+auto ShaderProgram::set_uniform(GLint location, const glm::mat3& matrix)
+    -> void {
+    if (location == -1) {
+        std::println(
+            stderr, "Invalid location for uniform in shader program: {}", id
+        );
+        return;
+    }
+
+    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
 } // namespace zpg::graphics

@@ -20,7 +20,13 @@ class Application {
 
     InputManager input_manager;
 
+    // Task 2c/2d: toggles for the resize demo (F3 = viewport, F4 = aspect).
+    bool update_viewport_on_resize{true};
+    bool update_projection_on_resize{true};
+
     static auto print_info() noexcept -> void;
+
+    auto refresh_window_title() const -> void;
 
     auto add_scene(std::unique_ptr<zpg::core::Scene> scene) -> void;
     auto switch_scene(std::size_t index) -> void;

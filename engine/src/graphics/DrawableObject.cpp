@@ -21,6 +21,14 @@ DrawableObject::DrawableObject(DrawableObject&& other) noexcept:
 auto DrawableObject::render_in_world(const glm::mat4& mat) -> void {
     shader_program->set_shader_program();
 
+    const glm::mat3 normal_matrix
+        = glm::transpose(glm::inverse(glm::mat3(mat)));
+
+    if (auto wn = shader_program->get_uniform_location("normalMatrix");
+        wn != -1) {
+        shader_program->set_uniform(wn, normal_matrix);
+    }
+
     auto loc = shader_program->get_uniform_location("modelMatrix");
     shader_program->set_uniform(loc, mat);
     model.bind();

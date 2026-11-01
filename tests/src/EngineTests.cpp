@@ -74,6 +74,28 @@ TEST(InputManager, AppliesMouseDeltaToCamera) {
     EXPECT_FALSE(glm::all(glm::equal(camera.front(), initial_front)));
 }
 
+// Task 2d: resizing the window must rebuild the projection with the new
+// aspect ratio, otherwise stretched geometry appears after a resize.
+TEST(Camera, ResizeUpdatesProjection) {
+    auto camera = zpg::core::Camera{};
+    camera.resize(800, 600);
+    const auto four_three = camera.get_projection();
+
+    camera.resize(1600, 600);
+    EXPECT_FALSE(matrices_equal(four_three, camera.get_projection()));
+}
+
+// Zero/negative framebuffer sizes (minimized window) must be ignored.
+TEST(Camera, ResizeIgnoresInvalidSize) {
+    auto camera = zpg::core::Camera{};
+    camera.resize(800, 600);
+    const auto before = camera.get_projection();
+
+    camera.resize(0, 0);
+    camera.resize(-1, 100);
+    EXPECT_TRUE(matrices_equal(before, camera.get_projection()));
+}
+
 // Children multiply left to right in the order they were added: adding
 // [translation, rotation] yields T * R, the classic model matrix order where
 // the first added child is the outermost (applied to the vertex last).

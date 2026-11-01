@@ -2,6 +2,7 @@
 #include "zpg/core/CameraObserver.hpp"
 #include "zpg/core/GlType.hpp"
 #include "zpg/graphics/Shader.hpp"
+#include <concepts>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <print>
@@ -49,7 +50,8 @@ class ShaderProgram final: public core::CameraObserver {
             glUniform1f(location, v0);
         } else if constexpr (std::same_as<U, GLuint>) {
             glUniform1ui(location, v0);
-        } else if constexpr (std::same_as<U, GLint>) {
+        } else if constexpr (std::same_as<U, GLint>
+                             || std::same_as<U, GLboolean>) {
             glUniform1i(location, v0);
         }
     }
@@ -70,7 +72,8 @@ class ShaderProgram final: public core::CameraObserver {
             glUniform2f(location, v0, v1);
         } else if constexpr (std::same_as<U, GLuint>) {
             glUniform2ui(location, v0, v1);
-        } else if constexpr (std::same_as<U, GLint>) {
+        } else if constexpr (std::same_as<U, GLint>
+                             || std::same_as<U, GLboolean>) {
             glUniform2i(location, v0, v1);
         }
     }
@@ -91,7 +94,8 @@ class ShaderProgram final: public core::CameraObserver {
             glUniform3f(location, v0, v1, v2);
         } else if constexpr (std::same_as<U, GLuint>) {
             glUniform3ui(location, v0, v1, v2);
-        } else if constexpr (std::same_as<U, GLint>) {
+        } else if constexpr (std::same_as<U, GLint>
+                             || std::same_as<U, GLboolean>) {
             glUniform3i(location, v0, v1, v2);
         }
     }
@@ -112,12 +116,15 @@ class ShaderProgram final: public core::CameraObserver {
             glUniform4f(location, v0, v1, v2, v3);
         } else if constexpr (std::same_as<U, GLuint>) {
             glUniform4ui(location, v0, v1, v2, v3);
-        } else if constexpr (std::same_as<U, GLint>) {
+        } else if constexpr (std::same_as<U, GLint>
+                             || std::same_as<U, GLboolean>) {
             glUniform4i(location, v0, v1, v2, v3);
         }
     }
 
     auto set_uniform(GLint location, const glm::mat4& matrix) -> void;
+
+    auto set_uniform(GLint location, const glm::mat3& matrix) -> void;
 };
 
 } // namespace zpg::graphics

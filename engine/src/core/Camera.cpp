@@ -14,15 +14,9 @@ Camera::Camera() {
 auto Camera::update_view() -> void {
     this->view_matrix
         = glm::lookAt(position, position + front(), {0.f, 1.f, 0.f});
-
-    this->projection_matrix
-        = glm::perspective(glm::radians(fov), aspect, 0.1f, 150.f);
 }
 
 auto Camera::update_projection() -> void {
-    this->view_matrix
-        = glm::lookAt(position, position + front(), {0.f, 1.f, 0.f});
-
     this->projection_matrix
         = glm::perspective(glm::radians(fov), aspect, 0.1f, 150.f);
 }

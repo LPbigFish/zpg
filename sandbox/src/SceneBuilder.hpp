@@ -53,6 +53,25 @@ struct SceneBuilder {
         const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
 
+    static auto create_normals_scene(
+        const std::shared_ptr<zg::ShaderProgram>& wrong_program,
+        const std::shared_ptr<zg::ShaderProgram>& right_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
+    ) -> std::unique_ptr<zc::Scene>;
+
+    static auto create_specular_scene(
+        const std::shared_ptr<zg::ShaderProgram>& wrong_program,
+        const std::shared_ptr<zg::ShaderProgram>& right_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
+    ) -> std::unique_ptr<zc::Scene>;
+
+    static auto create_night_forest_scene(
+        const std::shared_ptr<zg::ShaderProgram>& forest_program,
+        const std::shared_ptr<zg::ShaderProgram>& ground_program,
+        const std::shared_ptr<zg::ShaderProgram>& firefly_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
+    ) -> std::unique_ptr<zc::Scene>;
+
   private:
     static auto add_signature(
         const std::unique_ptr<zc::Scene>& scene,
