@@ -11,7 +11,7 @@ class Rotation: public TransformationComponent {
     glm::mat4 _matrix{1.f};
 
   public:
-    // Angle is given in DEGREES (converted to radians internally)
+    // converted to radians internally
     Rotation(const glm::vec3& rotation_vec, float degrees);
 
     [[nodiscard]] auto get_matrix() -> glm::mat4 override;

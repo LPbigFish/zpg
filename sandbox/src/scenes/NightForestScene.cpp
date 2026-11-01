@@ -12,14 +12,12 @@
 #include <random>
 #include <ranges>
 #include <span>
-#include <utility>
 #include <vector>
 
 namespace {
 
-// Firefly orbit, shared by the RotationRepeat group (ball) and the
-// set_update callback (light uniform), both driven by Time::get_elapsed_time.
-constexpr float FIREFLY_SPEED = 24.f; // degrees per second
+// Firefly orbit
+constexpr float FIREFLY_SPEED = 24.f;
 constexpr float FIREFLY_RADIUS = 3.f;
 constexpr float FIREFLY_HEIGHT = 1.6f;
 
@@ -81,8 +79,6 @@ constexpr float FIREFLY_HEIGHT = 1.6f;
 
 } // namespace
 
-// Task 3: night forest lit by a single firefly point light. The attenuation
-// 1/(kc + kl*d + kq*d^2) keeps the lit radius small; ambient is nearly black.
 auto SceneBuilder::create_night_forest_scene(
     const std::shared_ptr<zg::ShaderProgram>& forest_program,
     const std::shared_ptr<zg::ShaderProgram>& ground_program,
@@ -128,9 +124,6 @@ auto SceneBuilder::create_night_forest_scene(
     set_static_uniforms(forest_program);
     set_static_uniforms(ground_program);
 
-    // Ground gets a fixed dark color (PLAIN has no per-vertex color); trees
-    // and bushes use their vertex colors, so forest_program keeps the
-    // color == -vec3(1) sentinel.
     ground_program->set_shader_program();
     ground_program->set_uniform(
         ground_program->get_uniform_location("color"), 0.05f, 0.11f, 0.04f
@@ -142,8 +135,7 @@ auto SceneBuilder::create_night_forest_scene(
         .add_transformation(zg::Translation{{0.f, -2.1f, 0.f}})
         .add_transformation(zg::Scale{100.f});
 
-    // FIREFLY BALL riding the orbit; set_update keeps the light uniform at
-    // the same spot.
+    // FIREFLY BALL
     auto& orbit
         = scene->add_group(zg::RotationRepeat{{0.f, 1.f, 0.f}, FIREFLY_SPEED});
     orbit.add_object<zg::VertexLayout::PosNormal>(sphere, firefly_program)
@@ -199,8 +191,6 @@ auto SceneBuilder::create_night_forest_scene(
             .add_transformation(zg::Rotation{{0, 1, 0}, rotation(random)});
     }
 
-    // Keep lightPosition in sync with the orbiting ball (same Time source
-    // as RotationRepeat).
     scene->set_update([forest_program, ground_program](float) -> void {
         const float theta = glm::radians(FIREFLY_SPEED)
                           * zpg::utils::Time::get_elapsed_time();

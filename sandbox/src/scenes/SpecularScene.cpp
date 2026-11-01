@@ -1,11 +1,7 @@
 #include "../SceneBuilder.hpp"
-#include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Translation.hpp"
 #include <memory>
 
-// Task 2a/2b: shininess = 1, light behind the balls so their back side faces
-// the camera. Left: specular without the back-side clamp -> highlight bleeds
-// through. Right: phong.frag clips specular when dot(N, L) <= 0.
 auto SceneBuilder::create_specular_scene(
     const std::shared_ptr<zg::ShaderProgram>& wrong_program,
     const std::shared_ptr<zg::ShaderProgram>& right_program,

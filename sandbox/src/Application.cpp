@@ -1,7 +1,6 @@
 #include "Application.hpp"
 #include "SceneBuilder.hpp"
 #include "zpg/core/GFObserver.hpp"
-#include "zpg/core/GlType.hpp"
 #include "zpg/core/Renderer.hpp"
 #include "zpg/core/Scene.hpp"
 #include "zpg/graphics/Shader.hpp"
@@ -14,7 +13,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/trigonometric.hpp>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 #define GLAD_GL_IMPLEMENTATION
 #include <GLFW/glfw3.h>
@@ -315,8 +313,7 @@ auto Application::create_scenes() -> void {
     );
     normals_wrong_program->unset_shader_program();
 
-    // Task 2: wrong phong (specular leaks to the back side) vs fixed phong
-    // (phong.frag clamps). shininess = 1 makes the leak obvious.
+    // Task 2: wrong phong
     auto specular_wrong_program
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong_wrong);
     auto specular_right_program
@@ -335,7 +332,7 @@ auto Application::create_scenes() -> void {
         program->unset_shader_program();
     }
 
-    // Task 3: night forest programs (attenuated firefly point light).
+    // Task 3: night forest programs
     auto forest_program
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_forest);
     auto ground_program
@@ -377,19 +374,19 @@ auto Application::create_scenes() -> void {
     );
     this->add_scene(std::move(scene7));
 
-    // SCENE 7 - normals: wrong vs correct transform (key 7)
+    // SCENE 7 - normals: wrong vs correct transform
     auto scene7_normals = SceneBuilder::create_normals_scene(
         normals_wrong_program, normals_right_program, fixed_shader_program
     );
     this->add_scene(std::move(scene7_normals));
 
-    // SCENE 8 - specular: bleed-through vs clipped back side (key 8)
+    // SCENE 8
     auto scene8 = SceneBuilder::create_specular_scene(
         specular_wrong_program, specular_right_program, fixed_shader_program
     );
     this->add_scene(std::move(scene8));
 
-    // SCENE 9 - night forest with firefly point light (key 9)
+    // SCENE 9 - forest with firefly
     auto scene9 = SceneBuilder::create_night_forest_scene(
         forest_program, ground_program, firefly_program, fixed_shader_program
     );
