@@ -219,6 +219,9 @@ auto Application::create_scenes() -> void {
     auto fs_forest = zg::FragmentShader::create("shaders/forestNight.frag");
     auto fs_unlit = zg::FragmentShader::create("shaders/unlit.frag");
 
+    auto vs_texturing = zg::VertexShader::create("shaders/lighting.vert");
+    auto fs_texturing = zg::FragmentShader::create("shaders/texturing.frag");
+
     if (!vs) {
         std::println(stderr, "{}", vs.error());
         return;
@@ -283,6 +286,14 @@ auto Application::create_scenes() -> void {
         std::println(stderr, "{}", fs_unlit.error());
         return;
     }
+    if (!vs_texturing) {
+        std::println(stderr, "{}", vs_texturing.error());
+        return;
+    }
+    if (!fs_texturing) {
+        std::println(stderr, "{}", fs_texturing.error());
+        return;
+    }
 
     auto shader_program = std::make_shared<zg::ShaderProgram>(*vs, *fs);
     auto fixed_shader_program
@@ -300,6 +311,9 @@ auto Application::create_scenes() -> void {
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong);
     auto blinn_program
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_blinn);
+
+    auto texturing_program
+        = std::make_shared<zg::ShaderProgram>(*vs_texturing, *fs_texturing);
 
     // Wrong/Correct normals
     auto normals_wrong_program
@@ -391,6 +405,9 @@ auto Application::create_scenes() -> void {
         forest_program, ground_program, firefly_program, fixed_shader_program
     );
     this->add_scene(std::move(scene9));
+
+    auto scene10 = SceneBuilder::create_plain_scene(texturing_program);
+    this->add_scene(std::move(scene10));
 
     this->current_scene_index = this->scenes.size() - 1;
 }

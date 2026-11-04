@@ -20,13 +20,14 @@ add_library(
   src/core/Renderer.cpp
   src/core/Camera.cpp
   src/utils/poisonDisk.cpp
-  src/utils/Time.cpp)
+  src/utils/Time.cpp
+  src/graphics/Texture.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)
 target_compile_definitions(zpg_engine PRIVATE GLFW_INCLUDE_NONE)
 target_link_libraries(
   zpg_engine
-  PUBLIC glm::glm
-  PRIVATE glfw glad)
+  PUBLIC glm::glm glad
+  PRIVATE glfw stb_image)
 zpg_configure_target(zpg_engine)

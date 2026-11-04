@@ -72,6 +72,10 @@ struct SceneBuilder {
         const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
 
+    static auto
+    create_plain_scene(const std::shared_ptr<zg::ShaderProgram>& shader_program)
+        -> std::unique_ptr<zc::Scene>;
+
   private:
     static auto add_signature(
         const std::unique_ptr<zc::Scene>& scene,

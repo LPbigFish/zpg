@@ -13,7 +13,6 @@ uniform vec3 lightPosition = vec3(0.0);
 uniform vec3 lightColor = vec3(1.0, 1.0, 0.5);
 uniform float intensity = 2.2;
 
-// Task 3: point light attenuation 1 / (kc + kl*d + kq*d^2).
 uniform float kc = 1.0;
 uniform float kl = 0.35;
 uniform float kq = 0.10;
@@ -36,9 +35,8 @@ void main() {
     float attenuation = 1.0 / (kc + kl * d + kq * d * d);
 
     float diff = max(dot(lightDir, normal), 0.0);
-    float spec = diff > 0.0
-                   ? pow(max(dot(normal, halfDir), 0.0), shininess)
-                   : 0.0;
+    float spec
+        = diff > 0.0 ? pow(max(dot(normal, halfDir), 0.0), shininess) : 0.0;
 
     vec3 ambient = ambientStrength * u_color;
     vec3 diffuse = diff * u_color;

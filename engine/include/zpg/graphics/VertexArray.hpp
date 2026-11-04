@@ -1,10 +1,10 @@
 #pragma once
 
 #include "zpg/graphics/VertexBuffer.hpp"
-#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <glad/gl.h>
+#include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <span>
 #include <string>
@@ -17,12 +17,14 @@ enum class VertexLayout : std::uint8_t {
     PosColorNormal, // 9 floats: position, color, normal
     PosColor,       // 6 floats: position, color
     PosNormal,      // 6 floats: position, normal
+    PosNormalUv,    // 8 floats: position, normal, uv
 };
 
 struct Vertex {
-    glm::vec3 position;
-    glm::vec3 color;
-    glm::vec3 normal;
+    glm::vec3 position{};
+    glm::vec3 color{1.0f};
+    glm::vec3 normal{};
+    glm::vec2 uv{};
 };
 
 class VertexArray {

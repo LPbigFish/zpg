@@ -1,3 +1,4 @@
+#define GLFW_INCLUDE_NONE
 #include "zpg/core/InputManager.hpp"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/RotationRepeat.hpp"
@@ -5,11 +6,14 @@
 #include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/TransformationComposite.hpp"
 #include "zpg/graphics/Translation.hpp"
+#include "zpg/graphics/VertexArray.hpp"
 #include <cmath>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/trigonometric.hpp>
 #include <gtest/gtest.h>
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
 
 namespace zg = zpg::graphics;
 
@@ -44,6 +48,17 @@ auto rotation_angle_z(const glm::mat4& m) -> float {
 }
 
 } // namespace
+
+TEST(VertexArray, RejectsIncompleteUvVertex) {
+    // One complete vertex plus a trailing float must not be silently truncated.
+    const float data[9]{};
+    const auto result
+        = zg::VertexArray::create(data, zg::VertexLayout::PosNormalUv);
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(
+        result.error(), "Model data is empty or has an incomplete vertex"
+    );
+}
 
 // An empty composite is the identity matrix.
 TEST(TransformationComposite, EmptyIsIdentity) {

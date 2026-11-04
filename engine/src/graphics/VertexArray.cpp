@@ -2,6 +2,7 @@
 #include "zpg/core/GlType.hpp"
 #include <cstddef>
 #include <glm/common.hpp>
+#include <glm/ext/vector_float2.hpp>
 #include <utility>
 
 namespace zpg::graphics {
@@ -14,7 +15,11 @@ auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
     const std::size_t stride = layout == VertexLayout::PosColorNormal
                                     || layout == VertexLayout::PosNormalColor
                                  ? 9
-                                 : 6;
+                             : layout == VertexLayout::PosNormalUv ? 8
+                                                                   : 6;
+    if (data.size() % stride != 0) {
+        return {};
+    }
 
     std::vector<Vertex> vertices;
     vertices.reserve(data.size() / stride);
@@ -22,6 +27,7 @@ auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
         glm::vec3 position{data[i], data[i + 1], data[i + 2]};
         glm::vec3 color{1.0f};
         glm::vec3 normal{0.0f};
+        glm::vec2 uv{0.0f};
 
         if (layout == VertexLayout::PosNormalColor) {
             normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
@@ -31,20 +37,24 @@ auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
             normal = glm::vec3{data[i + 6], data[i + 7], data[i + 8]};
         } else if (layout == VertexLayout::PosColor) {
             color = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
+        } else if (layout == VertexLayout::PosNormalUv) {
+            normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
+            uv = glm::vec2{data[i + 6], data[i + 7]};
         } else {
             normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
             color = glm::abs(normal);
         }
 
         vertices.push_back(
-            Vertex{.position = position, .color = color, .normal = normal}
+            Vertex{
+              .position = position, .color = color, .normal = normal, .uv = uv
+            }
         );
     }
     return vertices;
 }
 
 auto VertexArray::setup_attributes() -> void {
-    static_assert(sizeof(Vertex) == 9 * sizeof(float));
     constexpr GLsizei STRIDE_BYTES = sizeof(Vertex);
 
     glEnableVertexAttribArray(0);
@@ -77,13 +87,25 @@ auto VertexArray::setup_attributes() -> void {
         // NOLINTNEXTLINE
         reinterpret_cast<GLvoid*>(offsetof(Vertex, normal))
     );
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(
+        3,
+        2,
+        core::gl_t<float>::V,
+        GL_FALSE,
+        STRIDE_BYTES,
+        // NOLINTNEXTLINE
+        reinterpret_cast<GLvoid*>(offsetof(Vertex, uv))
+    );
 }
 
 auto VertexArray::create(std::span<const float> data, VertexLayout layout)
     -> std::expected<VertexArray, std::string> {
     std::vector<Vertex> vertices = to_vertices(data, layout);
     if (vertices.empty()) {
-        return std::unexpected{"Model data contains no vertices"};
+        return std::unexpected{
+          "Model data is empty or has an incomplete vertex"
+        };
     }
 
     VertexBuffer vertex_buffer{std::span<const Vertex>{vertices}};
