@@ -5,7 +5,7 @@
 #include <concepts>
 #include <functional>
 #include <memory>
-#include <span>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -31,10 +31,10 @@ class Group final: public SceneNode {
         return result;
     }
 
-    template<VertexLayout Layout>
     auto add_object(
-        std::span<const float> data,
-        std::shared_ptr<ShaderProgram> shader_program
+        std::shared_ptr<const Model> model,
+        std::shared_ptr<ShaderProgram> shader_program,
+        std::optional<std::shared_ptr<Texture>> texture = std::nullopt
     ) -> DrawableObject& {
         if (observer) {
             observer(shader_program);
@@ -42,7 +42,7 @@ class Group final: public SceneNode {
 
         return add(
             std::make_unique<DrawableObject>(
-                Model::create<Layout>(data).value(), std::move(shader_program)
+                std::move(model), std::move(shader_program), std::move(texture)
             )
         );
     }

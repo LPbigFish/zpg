@@ -3,13 +3,16 @@
 #include "zpg/graphics/Model.hpp"
 #include "zpg/graphics/SceneNode.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
+#include "zpg/graphics/Texture.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <memory>
+#include <optional>
 
 namespace zpg::graphics {
 class DrawableObject final: public SceneNode {
-    Model model;
+    std::shared_ptr<const Model> model;
     std::shared_ptr<ShaderProgram> shader_program;
+    std::optional<std::shared_ptr<Texture>> texture;
 
     auto render_in_world(const glm::mat4& mat) -> void override;
 
@@ -17,7 +20,9 @@ class DrawableObject final: public SceneNode {
     DrawableObject() = delete;
 
     explicit DrawableObject(
-        Model model, std::shared_ptr<ShaderProgram> shader_program
+        std::shared_ptr<const Model> model,
+        std::shared_ptr<ShaderProgram> shader_program,
+        std::optional<std::shared_ptr<Texture>> texture = std::nullopt
     );
 
     auto draw() noexcept -> void;

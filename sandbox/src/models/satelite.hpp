@@ -1,10 +1,12 @@
 #pragma once
+#include "zpg/graphics/MeshData.hpp"
 #include <array>
-#include <cstddef>
+
+namespace models {
 
 // px, py, pz, r, g, b, nx, ny, nz
 // Non-indexed GL_TRIANGLES.
-inline constexpr std::array<float, 6912> SATELITE{
+inline constexpr std::array<float, 6912> satellite_data{
   -1.575279832e-01f, 8.869286416e-10f,  -1.075207368e-01f, 4.072402383e-01f,
   4.072402383e-01f,  4.072402383e-01f,  -1.236524216e-08f, -3.826832771e-01f,
   -9.238795638e-01f, 1.570121497e-01f,  -1.188897780e-08f, -1.075207368e-01f,
@@ -1735,4 +1737,8 @@ inline constexpr std::array<float, 6912> SATELITE{
   1.000000000e+00f,  0.000000000e+00f,  1.198544055e-06f,  -1.000000000e+00f,
 };
 
-inline constexpr std::size_t SATELITE_VERTEX_COUNT = SATELITE.size() / 9;
+inline constexpr zpg::graphics::MeshData satellite{
+  satellite_data, zpg::graphics::VertexLayout::PosColorNormal
+};
+
+} // namespace models

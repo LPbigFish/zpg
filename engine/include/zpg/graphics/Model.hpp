@@ -1,5 +1,6 @@
 #pragma once
 
+#include "zpg/graphics/MeshData.hpp"
 #include "zpg/graphics/VertexArray.hpp"
 #include <expected>
 #include <span>
@@ -25,6 +26,15 @@ class Model {
     static auto create(std::span<const float> data)
         -> std::expected<Model, std::string> {
         auto vertex_array = VertexArray::create(data, Layout);
+        if (!vertex_array) {
+            return std::unexpected{std::move(vertex_array).error()};
+        }
+        return Model{std::move(*vertex_array)};
+    }
+
+    static auto create(const MeshData& data)
+        -> std::expected<Model, std::string> {
+        auto vertex_array = VertexArray::create(data.vertices, data.layout);
         if (!vertex_array) {
             return std::unexpected{std::move(vertex_array).error()};
         }
