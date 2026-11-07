@@ -1,10 +1,6 @@
 #pragma once
 
-#include "models/bushes.h"
-#include "models/clock.h"
-#include "models/plain.h"
-#include "models/sphere.h"
-#include "models/tree.h"
+#include "ModelManager.hpp"
 #include "zpg/core/Scene.hpp"
 #include "zpg/graphics/ShaderProgram.hpp"
 #include <memory>
@@ -72,11 +68,20 @@ struct SceneBuilder {
         const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
 
+    static auto create_plain_scene(
+        const std::shared_ptr<zg::ShaderProgram>& shader_program,
+        const std::shared_ptr<zg::ShaderProgram>& skybox_program
+    ) -> std::unique_ptr<zc::Scene>;
+
     static auto
-    create_plain_scene(const std::shared_ptr<zg::ShaderProgram>& shader_program)
+    create_eb408_scene(const std::shared_ptr<zg::ShaderProgram>& shader_program)
         -> std::unique_ptr<zc::Scene>;
 
   private:
+    static auto model(ModelId id) -> std::shared_ptr<const zg::Model> {
+        return ModelManager::instance().get(id);
+    }
+
     static auto add_signature(
         const std::unique_ptr<zc::Scene>& scene,
         const std::shared_ptr<zg::ShaderProgram>& shader_program

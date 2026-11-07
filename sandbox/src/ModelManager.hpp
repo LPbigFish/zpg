@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <expected>
 #include <memory>
-#include <span>
 #include <string>
 #include <utility>
 
@@ -31,6 +30,11 @@ enum class ModelId : std::uint8_t {
     Shrek,
     Door,
     DoorFrame,
+    Skybox,
+    Eb408Room,
+    OrangeChair,
+    Table,
+    Whiteboard,
     Count,
 };
 

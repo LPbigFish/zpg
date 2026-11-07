@@ -13,6 +13,8 @@ class Translation final: public TransformationComponent {
   public:
     explicit Translation(const glm::vec3& translation_vec);
 
+    explicit Translation(float translation_x, float translation_y, float translation_z);
+
     [[nodiscard]] auto get_matrix() -> glm::mat4 override;
 
     auto change_translation(const glm::vec3& translation_vec) -> void;

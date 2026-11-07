@@ -4,10 +4,11 @@
 #include "zpg/graphics/DrawableObject.hpp"
 #include "zpg/graphics/Group.hpp"
 #include "zpg/graphics/SceneNode.hpp"
+#include "zpg/graphics/Skybox.hpp"
 #include <concepts>
 #include <functional>
 #include <memory>
-#include <span>
+#include <optional>
 #include <utility>
 
 namespace zpg::core {
@@ -15,6 +16,7 @@ namespace zpg::core {
 class Scene {
     graphics::Group root;
     core::Camera camera;
+    std::unique_ptr<graphics::Skybox> skybox;
 
     std::function<void(float)> update_callback;
 
@@ -43,16 +45,20 @@ class Scene {
 
     auto update(float dt) -> void;
 
-    template<graphics::VertexLayout Layout>
     auto add_object(
-        std::span<const float> data,
-        std::shared_ptr<graphics::ShaderProgram> shader_program
+        std::shared_ptr<const graphics::Model> model,
+        std::shared_ptr<graphics::ShaderProgram> shader_program,
+        std::optional<std::shared_ptr<graphics::Texture>> texture = std::nullopt
     ) -> graphics::DrawableObject& {
-        return root.add_object<Layout>(data, shader_program);
+        return root.add_object(
+            std::move(model), std::move(shader_program), std::move(texture)
+        );
     }
 
     auto add_node(std::unique_ptr<graphics::SceneNode> node)
         -> graphics::SceneNode&;
+
+    auto set_skybox(std::unique_ptr<graphics::Skybox> skybox) -> void;
 
     auto add_group() -> graphics::Group&;
 

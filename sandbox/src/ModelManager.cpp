@@ -4,12 +4,17 @@
 #include "models/SM_DoorFrame.hpp"
 #include "models/SM_Model.hpp"
 #include "models/Shrek.hpp"
+#include "models/EB408/SM_EB408.hpp"
+#include "models/EB408/OrangeChair.hpp"
+#include "models/EB408/SM_Table.hpp"
+#include "models/EB408/SM_Whiteboard.hpp"
 #include "models/bushes.hpp"
 #include "models/clock.hpp"
 #include "models/earth.hpp"
 #include "models/moon.hpp"
 #include "models/plain.hpp"
 #include "models/satelite.hpp"
+#include "models/skybox.hpp"
 #include "models/sphere.hpp"
 #include "models/sun.hpp"
 #include "models/text.hpp"
@@ -201,10 +206,25 @@ auto ModelManager::preload() -> std::expected<void, std::string> {
         if (auto r = load(ModelId::Shrek, models::shrek); !r) {
             return r;
         }
+        if (auto r = load(ModelId::Eb408Room, models::sm_eb408); !r) {
+            return r;
+        }
+        if (auto r = load(ModelId::OrangeChair, models::orangechair); !r) {
+            return r;
+        }
+        if (auto r = load(ModelId::Table, models::sm_table); !r) {
+            return r;
+        }
+        if (auto r = load(ModelId::Whiteboard, models::sm_whiteboard); !r) {
+            return r;
+        }
         if (auto r = load(ModelId::Door, models::sm_door); !r) {
             return r;
         }
         if (auto r = load(ModelId::DoorFrame, models::sm_doorframe); !r) {
+            return r;
+        }
+        if (auto r = load(ModelId::Skybox, models::skybox); !r) {
             return r;
         }
         return load(ModelId::UvPlain, models::uv_plain);

@@ -1,8 +1,4 @@
 #include "SceneBuilder.hpp"
-#include "models/earth.h"
-#include "models/moon.h"
-#include "models/satelite.hpp"
-#include "models/sun.h"
 #include "zpg/graphics/RotationRepeat.hpp"
 #include "zpg/graphics/Scale.hpp"
 #include "zpg/graphics/Translation.hpp"
@@ -57,21 +53,20 @@ auto SceneBuilder::create_solar_scene(
     auto& solar_system = scene->add_group();
 
     solar_system.add_group()
-        .add_object<zg::VertexLayout::PosColorNormal>(sun, ambient_program)
+        .add_object(model(ModelId::Sun), ambient_program)
         .add_transformation(zg::Scale{0.3f})
         .add_transformation(spin(15.f));
 
     auto& earth_group
         = solar_system.add_group(zg::Translation{{0.75f, 0.f, 0.f}});
-    earth_group
-        .add_object<zg::VertexLayout::PosColorNormal>(earth, phong_program)
+    earth_group.add_object(model(ModelId::Earth), phong_program)
         .add_transformation(zg::Scale{0.08f})
         .add_transformation(spin(25.f));
 
     auto& moon_orbit
         = earth_group.add_group(zg::RotationRepeat{{0.f, 1.f, 0.f}, 6.0f});
     moon_orbit.add_group(zg::Translation{{0.4f, 0.f, 0.f}})
-        .add_object<zg::VertexLayout::PosColorNormal>(moon, phong_program)
+        .add_object(model(ModelId::Moon), phong_program)
         .add_transformation(zg::Scale{0.02f})
         .add_transformation(spin(40.f));
 
@@ -79,7 +74,7 @@ auto SceneBuilder::create_solar_scene(
         zg::RotationRepeat{{0.f, 0.9063f, 0.4226f}, 10.f}
     );
     satellite_orbit.add_group(zg::Translation{{0.23f, 0.f, 0.f}})
-        .add_object<zg::VertexLayout::PosColorNormal>(SATELITE, blinn_program)
+        .add_object(model(ModelId::Satellite), blinn_program)
         .add_transformation(zg::Scale{0.05f})
         .add_transformation(spin(4.f));
 

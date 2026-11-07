@@ -7,6 +7,9 @@ Scene::Scene():
     root{[this](const auto& program) -> void { camera.attach(program); }} {}
 
 auto Scene::render() -> void {
+    if (skybox) {
+        skybox->render(camera);
+    }
     root.render(glm::mat4{1.f});
 }
 
@@ -37,6 +40,10 @@ auto Scene::update(float dt) -> void {
 auto Scene::add_node(std::unique_ptr<graphics::SceneNode> node)
     -> graphics::SceneNode& {
     return root.add(std::move(node));
+}
+
+auto Scene::set_skybox(std::unique_ptr<graphics::Skybox> _skybox) -> void {
+    skybox = std::move(_skybox);
 }
 
 auto Scene::add_group() -> graphics::Group& {

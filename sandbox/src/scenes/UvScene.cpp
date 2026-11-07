@@ -1,35 +1,80 @@
 #include "../SceneBuilder.hpp"
-#include "models/uv_plain.hpp"
+#include "ModelManager.hpp"
+#include "zpg/graphics/Rotation.hpp"
+#include "zpg/graphics/Scale.hpp"
+#include "zpg/graphics/Skybox.hpp"
 #include "zpg/graphics/Texture.hpp"
-#include "zpg/graphics/VertexArray.hpp"
+#include "zpg/graphics/Translation.hpp"
+#include <array>
+#include <memory>
+#include <print>
+#include <string>
 
 auto SceneBuilder::create_plain_scene(
-    const std::shared_ptr<zg::ShaderProgram>& shader_program
+    const std::shared_ptr<zg::ShaderProgram>& shader_program,
+    const std::shared_ptr<zg::ShaderProgram>& skybox_program
 ) -> std::unique_ptr<zc::Scene> {
     auto scene = std::make_unique<zc::Scene>();
 
-    auto texture = zg::Texture::create("assets/textures/wooden_fence.png");
-    if (!texture) {
-        std::println(stderr, "Failed to load texture: {}", texture.error());
-        return scene;
+    const std::array<std::string, 6> skybox_faces{
+      "assets/textures/skybox/posx.jpg",
+      "assets/textures/skybox/negx.jpg",
+      "assets/textures/skybox/posy.jpg",
+      "assets/textures/skybox/negy.jpg",
+      "assets/textures/skybox/posz.jpg",
+      "assets/textures/skybox/negz.jpg"
+    };
+    auto skybox = zg::Skybox::create(
+        skybox_program, model(ModelId::Skybox), skybox_faces
+    );
+    if (!skybox) {
+        std::println(stderr, "Failed to create skybox: {}", skybox.error());
+    } else {
+        scene->set_skybox(std::make_unique<zg::Skybox>(std::move(*skybox)));
     }
 
-    auto doors = zg::Texture::create("assets/textures/doors.png");
+    auto door = zg::Texture::create("assets/textures/door.png");
+    if (!door) {
+        std::println(stderr, "Failed to load texture: {}", door.error());
+        return scene;
+    }
+    const auto door_texture = std::make_shared<zg::Texture>(std::move(*door));
 
-    scene->add_object<zg::VertexLayout::PosNormalUv>(uv_plain, shader_program);
+    auto shrek = zg::Texture::create("assets/textures/shrek.png");
+    if (!shrek) {
+        std::println(stderr, "Failed to load texture: {}", shrek.error());
+        return scene;
+    }
+    const auto shrek_texture = std::make_shared<zg::Texture>(std::move(*shrek));
 
-    scene->set_update(
-        [shader_program,
-         texture
-         = std::make_shared<zg::Texture>(std::move(*texture))](float) -> void {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture->get_id());
-            shader_program->set_shader_program();
-            shader_program->set_uniform(
-                shader_program->get_uniform_location("textureUnitID"), 0
-            );
-            shader_program->unset_shader_program();
-        }
-    );
+    auto fiona = zg::Texture::create("assets/textures/fiona.png");
+    if (!fiona) {
+        std::println(stderr, "Failed to load texture: {}", fiona.error());
+        return scene;
+    }
+    const auto fiona_texture = std::make_shared<zg::Texture>(std::move(*fiona));
+
+    scene->add_object(model(ModelId::Shrek), shader_program, shrek_texture)
+        .add_transformation(zg::Translation{{-2.f, 0.f, 0.f}});
+
+    scene->add_object(model(ModelId::Fiona), shader_program, fiona_texture)
+        .add_transformation(zg::Translation{{2.f, 0.f, 0.f}});
+
+    auto& door_group = scene->add_group();
+
+    door_group.add_transformation(zg::Translation{0.f, 0.f, -2.f});
+
+    door_group
+        .add_object(model(ModelId::DoorFrame), shader_program, door_texture)
+        .add_transformation(zg::Rotation{'x', -90.f})
+        .add_transformation(zg::Scale{1.f, -1.f, 1.f})
+        .add_transformation(zg::Scale{0.01f})
+        .add_transformation(zg::Translation{0.f, 0.f, 0.f});
+
+    door_group.add_object(model(ModelId::Door), shader_program, door_texture)
+        .add_transformation(zg::Translation{0.f, 0.f, -0.0f})
+        .add_transformation(zg::Rotation{'x', -90.f})
+        .add_transformation(zg::Scale{0.01f, -0.01f, 0.01f});
+
     return scene;
 }

@@ -16,6 +16,7 @@ auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
                                     || layout == VertexLayout::PosNormalColor
                                  ? 9
                              : layout == VertexLayout::PosNormalUv ? 8
+                             : layout == VertexLayout::Pos         ? 3
                                                                    : 6;
     if (data.size() % stride != 0) {
         return {};
@@ -40,6 +41,8 @@ auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
         } else if (layout == VertexLayout::PosNormalUv) {
             normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
             uv = glm::vec2{data[i + 6], data[i + 7]};
+        } else if (layout == VertexLayout::Pos) {
+            // position only; color/normal stay defaulted
         } else {
             normal = glm::vec3{data[i + 3], data[i + 4], data[i + 5]};
             color = glm::abs(normal);

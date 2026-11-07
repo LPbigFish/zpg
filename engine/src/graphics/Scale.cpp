@@ -7,6 +7,9 @@ Scale::Scale(const glm::vec3& scale_vec) {
     _matrix = glm::scale(glm::mat4{1.f}, scale_vec);
 }
 
+Scale::Scale(float scale_x, float scale_y, float scale_z):
+    Scale(glm::vec3{scale_x, scale_y, scale_z}) {}
+
 Scale::Scale(float scale_vec):
     Scale(glm::vec3{scale_vec, scale_vec, scale_vec}) {}
 

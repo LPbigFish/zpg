@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <expected>
 #include <glad/gl.h>
 #include <string>
@@ -19,6 +20,12 @@ class Texture {
     auto operator=(Texture&&) -> Texture& = delete;
 
     static auto create(const std::string& path)
+        -> std::expected<Texture, std::string>;
+
+    static auto create_cubemap(const std::string paths[6])
+        -> std::expected<Texture, std::string>;
+
+    static auto create_cube_map(const std::array<std::string, 6>& faces)
         -> std::expected<Texture, std::string>;
 
     [[nodiscard]] auto get_id() const noexcept -> GLuint;

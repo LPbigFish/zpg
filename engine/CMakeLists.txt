@@ -21,7 +21,8 @@ add_library(
   src/core/Camera.cpp
   src/utils/poisonDisk.cpp
   src/utils/Time.cpp
-  src/graphics/Texture.cpp)
+  src/graphics/Texture.cpp
+  src/graphics/Skybox.cpp)
 add_library(ZPG::Engine ALIAS zpg_engine)
 
 target_include_directories(zpg_engine PUBLIC include)

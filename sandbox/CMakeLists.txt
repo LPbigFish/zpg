@@ -1,8 +1,8 @@
 file(GLOB_RECURSE ZPG_SANDBOX_SCENES CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/src/scenes/*.cpp")
 
-add_executable(zpg_sandbox src/main.cpp src/Application.cpp
-                           ${ZPG_SANDBOX_SCENES} src/SceneBuilder.cpp)
+add_executable(zpg_sandbox src/main.cpp src/Application.cpp src/ModelManager.cpp
+                            ${ZPG_SANDBOX_SCENES} src/SceneBuilder.cpp)
 
 target_include_directories(zpg_sandbox PRIVATE src)
 target_compile_definitions(zpg_sandbox PRIVATE GLFW_INCLUDE_NONE)

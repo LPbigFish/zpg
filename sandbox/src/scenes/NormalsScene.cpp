@@ -15,7 +15,7 @@ auto SceneBuilder::create_normals_scene(
         = [&scene](
               const std::shared_ptr<zg::ShaderProgram>& program, float x
           ) -> void {
-        scene->add_object<zg::VertexLayout::PosNormal>(sphere, program)
+        scene->add_object(model(ModelId::SphereNormal), program)
             .add_transformation(zg::Translation{{x, 0.f, 0.f}})
             .add_transformation(zg::Rotation{{0.f, 1.f, 0.f}, 45.f})
             .add_transformation(zg::Scale{{2.f, 0.4f, 1.f}});

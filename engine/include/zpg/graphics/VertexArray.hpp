@@ -18,6 +18,7 @@ enum class VertexLayout : std::uint8_t {
     PosColor,       // 6 floats: position, color
     PosNormal,      // 6 floats: position, normal
     PosNormalUv,    // 8 floats: position, normal, uv
+    Pos,            // 3 floats: position
 };
 
 struct Vertex {

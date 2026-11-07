@@ -7,6 +7,14 @@ Translation::Translation(const glm::vec3& translation_vec) {
     _matrix = glm::translate(glm::mat4{1.f}, translation_vec);
 }
 
+Translation::Translation(
+    float translation_x, float translation_y, float translation_z
+) {
+    _matrix = glm::translate(
+        glm::mat4{1.f}, glm::vec3{translation_x, translation_y, translation_z}
+    );
+}
+
 auto Translation::get_matrix() -> glm::mat4 {
     return _matrix;
 }

@@ -54,7 +54,7 @@ auto SceneBuilder::create_four_ball_scene(
 
     for (std::size_t i = 0; i < POSITIONS.size(); ++i) {
         const auto& [x, z] = POSITIONS.at(i);
-        scene->add_object<zg::VertexLayout::PosNormal>(sphere, programs.at(i))
+        scene->add_object(model(ModelId::SphereNormal), programs.at(i))
             .add_transformation(zg::Translation{{1.5f * x, 0.f, 1.5f * z}})
             .add_transformation(zg::Scale{0.65f});
     }

@@ -34,7 +34,7 @@ class Application {
 
   public:
     Application();
-    ~Application() = default;
+    ~Application();
 
     Application(const Application&) = delete;
     auto operator=(const Application&) -> Application& = delete;

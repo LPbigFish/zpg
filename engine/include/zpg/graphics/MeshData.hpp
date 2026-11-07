@@ -43,6 +43,7 @@ struct MeshData {
             case VertexLayout::PosColor:
             case VertexLayout::PosNormal: return 6;
             case VertexLayout::PosNormalUv: return 8;
+            case VertexLayout::Pos: return 3;
         }
         return 1;
     }

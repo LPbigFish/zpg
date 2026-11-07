@@ -13,6 +13,8 @@ class Scale final: public TransformationComponent {
   public:
     explicit Scale(const glm::vec3& scale_vec);
 
+    explicit Scale(float scale_x, float scale_y, float scale_z);
+
     explicit Scale(float scale_vec);
 
     [[nodiscard]] auto get_matrix() -> glm::mat4 override;

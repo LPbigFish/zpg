@@ -13,7 +13,7 @@ auto SceneBuilder::create_specular_scene(
         = [&scene](
               const std::shared_ptr<zg::ShaderProgram>& program, float x
           ) -> void {
-        scene->add_object<zg::VertexLayout::PosNormal>(sphere, program)
+        scene->add_object(model(ModelId::SphereNormal), program)
             .add_transformation(zg::Translation{{x, 0.f, 0.f}});
     };
 
