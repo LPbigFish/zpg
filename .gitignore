@@ -8,3 +8,4 @@ compile_commands.json
 .zed/*.log
 *.swp
 sandbox/src/models/furry.hpp
+assets/models/raw/2b_nier_automata_furry_3d_model.glb
