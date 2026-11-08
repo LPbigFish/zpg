@@ -70,12 +70,14 @@ struct SceneBuilder {
 
     static auto create_plain_scene(
         const std::shared_ptr<zg::ShaderProgram>& shader_program,
-        const std::shared_ptr<zg::ShaderProgram>& skybox_program
+        const std::shared_ptr<zg::ShaderProgram>& skybox_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
     ) -> std::unique_ptr<zc::Scene>;
 
-    static auto
-    create_eb408_scene(const std::shared_ptr<zg::ShaderProgram>& shader_program)
-        -> std::unique_ptr<zc::Scene>;
+    static auto create_eb408_scene(
+        const std::shared_ptr<zg::ShaderProgram>& shader_program,
+        const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
+    ) -> std::unique_ptr<zc::Scene>;
 
   private:
     static auto model(ModelId id) -> std::shared_ptr<const zg::Model> {

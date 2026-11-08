@@ -342,7 +342,6 @@ auto Application::create_scenes() -> void {
     );
     normals_wrong_program->unset_shader_program();
 
-    // Task 2: wrong phong
     auto specular_wrong_program
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_phong_wrong);
     auto specular_right_program
@@ -370,62 +369,69 @@ auto Application::create_scenes() -> void {
         = std::make_shared<zg::ShaderProgram>(*vs_lighting, *fs_unlit);
 
     // Scene 1
-//     auto scene1 = SceneBuilder::create_triangles_scene(fixed_shader_program);
-//     this->add_scene(std::move(scene1));
+    //     auto scene1 =
+    //     SceneBuilder::create_triangles_scene(fixed_shader_program);
+    //     this->add_scene(std::move(scene1));
 
     // Scene 2
-//     auto scene2 = SceneBuilder::create_ball_scene(fixed_shader_program);
-//     this->add_scene(std::move(scene2));
+    //     auto scene2 = SceneBuilder::create_ball_scene(fixed_shader_program);
+    //     this->add_scene(std::move(scene2));
 
     // SCENE 3
-//     auto scene3 = SceneBuilder::create_four_ball_scene(
-//         ambient_program,
-//         lambert_program,
-//         phong_program,
-//         blinn_program,
-//         fixed_shader_program
-//     );
-//     this->add_scene(std::move(scene3));
+    //     auto scene3 = SceneBuilder::create_four_ball_scene(
+    //         ambient_program,
+    //         lambert_program,
+    //         phong_program,
+    //         blinn_program,
+    //         fixed_shader_program
+    //     );
+    //     this->add_scene(std::move(scene3));
 
     // Scene 4 OBJECTS
-//     auto scene4 = SceneBuilder::create_login_scene(fixed_shader_program);
-//     this->add_scene(std::move(scene4));
+    //     auto scene4 = SceneBuilder::create_login_scene(fixed_shader_program);
+    //     this->add_scene(std::move(scene4));
 
     // SCENE 5
-//     auto scene5 = SceneBuilder::create_solar_scene(
-//         ambient_program, phong_program, blinn_program, fixed_shader_program
-//     );
-//     this->add_scene(std::move(scene5));
+    //     auto scene5 = SceneBuilder::create_solar_scene(
+    //         ambient_program, phong_program, blinn_program,
+    //         fixed_shader_program
+    //     );
+    //     this->add_scene(std::move(scene5));
 
     // SCENE 7 - clock
-//     auto scene7 = SceneBuilder::create_forest_clock_scene(
-//         shader_program, tree_program, fixed_shader_program, clock_shader_program
-//     );
-//     this->add_scene(std::move(scene7));
+    //     auto scene7 = SceneBuilder::create_forest_clock_scene(
+    //         shader_program, tree_program, fixed_shader_program,
+    //         clock_shader_program
+    //     );
+    //     this->add_scene(std::move(scene7));
 
     // SCENE 7 - normals: wrong vs correct transform
-//     auto scene7_normals = SceneBuilder::create_normals_scene(
-//         normals_wrong_program, normals_right_program, fixed_shader_program
-//     );
-//     this->add_scene(std::move(scene7_normals));
+    //     auto scene7_normals = SceneBuilder::create_normals_scene(
+    //         normals_wrong_program, normals_right_program,
+    //         fixed_shader_program
+    //     );
+    //     this->add_scene(std::move(scene7_normals));
 
     // SCENE 8
-//     auto scene8 = SceneBuilder::create_specular_scene(
-//         specular_wrong_program, specular_right_program, fixed_shader_program
-//     );
-//     this->add_scene(std::move(scene8));
+    //     auto scene8 = SceneBuilder::create_specular_scene(
+    //         specular_wrong_program, specular_right_program,
+    //         fixed_shader_program
+    //     );
+    //     this->add_scene(std::move(scene8));
 
     // SCENE 9 - forest with firefly
-//     auto scene9 = SceneBuilder::create_night_forest_scene(
-//         forest_program, ground_program, firefly_program, fixed_shader_program
-//     );
-//     this->add_scene(std::move(scene9));
+    //     auto scene9 = SceneBuilder::create_night_forest_scene(
+    //         forest_program, ground_program, firefly_program,
+    //         fixed_shader_program
+    //     );
+    //     this->add_scene(std::move(scene9));
 
-//     auto scene10 = SceneBuilder::create_plain_scene(texturing_program, skybox_program);
-//     this->add_scene(std::move(scene10));
+    auto scene10
+        = SceneBuilder::create_plain_scene(texturing_program, skybox_program, fixed_shader_program);
+    this->add_scene(std::move(scene10));
 
     // SCENE 11 - EB408 classroom
-    auto scene_eb408 = SceneBuilder::create_eb408_scene(texturing_program);
+    auto scene_eb408 = SceneBuilder::create_eb408_scene(texturing_program, fixed_shader_program);
     this->add_scene(std::move(scene_eb408));
 
     this->current_scene_index = this->scenes.size() - 1;

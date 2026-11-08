@@ -35,6 +35,7 @@ enum class ModelId : std::uint8_t {
     OrangeChair,
     Table,
     Whiteboard,
+    Furry,
     Count,
 };
 

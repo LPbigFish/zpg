@@ -12,7 +12,8 @@
 
 auto SceneBuilder::create_plain_scene(
     const std::shared_ptr<zg::ShaderProgram>& shader_program,
-    const std::shared_ptr<zg::ShaderProgram>& skybox_program
+    const std::shared_ptr<zg::ShaderProgram>& skybox_program,
+    const std::shared_ptr<zg::ShaderProgram>& fixed_shader_program
 ) -> std::unique_ptr<zc::Scene> {
     auto scene = std::make_unique<zc::Scene>();
 
@@ -54,11 +55,23 @@ auto SceneBuilder::create_plain_scene(
     }
     const auto fiona_texture = std::make_shared<zg::Texture>(std::move(*fiona));
 
+    auto furry = zg::Texture::create("assets/textures/furry.png");
+    if (!furry) {
+        std::println(stderr, "Failed to load texture: {}", furry.error());
+        return scene;
+    }
+    const auto furry_texture = std::make_shared<zg::Texture>(std::move(*furry));
+
     scene->add_object(model(ModelId::Shrek), shader_program, shrek_texture)
         .add_transformation(zg::Translation{{-2.f, 0.f, 0.f}});
 
     scene->add_object(model(ModelId::Fiona), shader_program, fiona_texture)
         .add_transformation(zg::Translation{{2.f, 0.f, 0.f}});
+
+    scene->add_object(model(ModelId::Furry), shader_program, furry_texture)
+        .add_transformation(zg::Translation{{4.f, 1.f, 0.f}})
+        .add_transformation(zg::Rotation{'y', -90.f})
+        .add_transformation(zg::Rotation{'x', -90.f});
 
     auto& door_group = scene->add_group();
 
@@ -75,6 +88,8 @@ auto SceneBuilder::create_plain_scene(
         .add_transformation(zg::Translation{0.f, 0.f, -0.0f})
         .add_transformation(zg::Rotation{'x', -90.f})
         .add_transformation(zg::Scale{0.01f, -0.01f, 0.01f});
+
+    add_signature(scene, fixed_shader_program);
 
     return scene;
 }
