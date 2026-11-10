@@ -68,10 +68,10 @@ auto SceneBuilder::create_plain_scene(
     scene->add_object(model(ModelId::Fiona), shader_program, fiona_texture)
         .add_transformation(zg::Translation{{2.f, 0.f, 0.f}});
 
-    scene->add_object(model(ModelId::Furry), shader_program, furry_texture)
-        .add_transformation(zg::Translation{{4.f, 1.f, 0.f}})
-        .add_transformation(zg::Rotation{'y', -90.f})
-        .add_transformation(zg::Rotation{'x', -90.f});
+    // scene->add_object(model(ModelId::Furry), shader_program, furry_texture)
+    //     .add_transformation(zg::Translation{{4.f, 1.f, 0.f}})
+    //     .add_transformation(zg::Rotation{'y', -90.f})
+    //     .add_transformation(zg::Rotation{'x', -90.f});
 
     auto& door_group = scene->add_group();
 

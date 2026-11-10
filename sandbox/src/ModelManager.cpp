@@ -11,7 +11,6 @@
 #include "models/bushes.hpp"
 #include "models/clock.hpp"
 #include "models/earth.hpp"
-#include "models/furry.hpp"
 #include "models/moon.hpp"
 #include "models/plain.hpp"
 #include "models/satelite.hpp"
@@ -226,9 +225,6 @@ auto ModelManager::preload() -> std::expected<void, std::string> {
             return r;
         }
         if (auto r = load(ModelId::Skybox, models::skybox); !r) {
-            return r;
-        }
-        if (auto r = load(ModelId::Furry, models::sketchfab_merged); !r) {
             return r;
         }
         return load(ModelId::UvPlain, models::uv_plain);
