@@ -26,6 +26,7 @@ auto Skybox::create(
 
 auto Skybox::render(const core::Camera& camera) const -> void {
     glDepthMask(GL_FALSE);
+    glStencilMask(0x00);
 
     program->set_shader_program();
 
@@ -53,5 +54,6 @@ auto Skybox::render(const core::Camera& camera) const -> void {
     program->unset_shader_program();
 
     glDepthMask(GL_TRUE);
+    glStencilMask(0xFF);
 }
 } // namespace zpg::graphics

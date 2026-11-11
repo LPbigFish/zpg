@@ -59,10 +59,17 @@ auto Camera::resize(int width, int height) -> void {
         return;
     }
 
+    resolution
+        = glm::vec2{static_cast<float>(width), static_cast<float>(height)};
+
     aspect = static_cast<float>(width) / static_cast<float>(height);
 
     update_projection();
     publish();
+}
+
+auto Camera::get_resolution() const -> const glm::vec2& {
+    return resolution;
 }
 
 auto Camera::get_view() const -> const glm::mat4& {

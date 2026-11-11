@@ -14,10 +14,14 @@ DrawableObject::DrawableObject(
     texture{std::move(texture)} {}
 
 DrawableObject::DrawableObject(DrawableObject&& other) noexcept:
-    model{std::move(other.model)},
+    id{std::exchange(other.id, 0)}, model{std::move(other.model)},
     shader_program{std::move(other.shader_program)},
     texture{std::move(other.texture)} {
     move_transform_from(other);
+}
+
+auto DrawableObject::get_id() const noexcept -> GLint {
+    return id;
 }
 
 [[nodiscard]] auto DrawableObject::get_program() const -> const ShaderProgram& {
@@ -43,9 +47,12 @@ auto DrawableObject::render_in_world(const glm::mat4& mat) -> void {
         shader_program->set_uniform(wn, normal_matrix);
     }
 
-    auto loc = shader_program->get_uniform_location("modelMatrix");
-    shader_program->set_uniform(loc, mat);
+    if (auto loc = shader_program->get_uniform_location("modelMatrix");
+        loc != -1) {
+        shader_program->set_uniform(loc, mat);
+    }
     model->bind();
+    glStencilFunc(GL_ALWAYS, get_id(), 0xFF);
     glDrawArrays(GL_TRIANGLES, 0, model->get_count());
     Model::unbind();
     shader_program->unset_shader_program();

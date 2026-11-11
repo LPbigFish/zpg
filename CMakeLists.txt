@@ -25,7 +25,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-add_subdirectory(third_party/glad)
+add_subdirectory(third_party)
 include(cmake/ZpgTarget.cmake)
 
 add_subdirectory(engine)

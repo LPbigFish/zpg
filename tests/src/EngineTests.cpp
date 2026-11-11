@@ -1,5 +1,6 @@
 #define GLFW_INCLUDE_NONE
 #include "zpg/core/InputManager.hpp"
+#include "zpg/graphics/DrawableObject.hpp"
 #include "zpg/graphics/Rotation.hpp"
 #include "zpg/graphics/RotationRepeat.hpp"
 #include "zpg/graphics/Scale.hpp"
@@ -12,6 +13,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/trigonometric.hpp>
 #include <gtest/gtest.h>
+#include <utility>
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 
@@ -58,6 +60,31 @@ TEST(VertexArray, RejectsIncompleteUvVertex) {
     EXPECT_EQ(
         result.error(), "Model data is empty or has an incomplete vertex"
     );
+}
+
+TEST(DrawableObject, AssignsDistinctNonzeroIds) {
+    const auto first = zg::DrawableObject{nullptr, nullptr};
+    const auto second = zg::DrawableObject{nullptr, nullptr};
+
+    EXPECT_GT(first.get_id(), 0);
+    EXPECT_GT(second.get_id(), 0);
+    EXPECT_NE(first.get_id(), second.get_id());
+}
+
+TEST(DrawableObject, MoveTransfersIdWithoutAllocatingAnother) {
+    auto original = zg::DrawableObject{nullptr, nullptr};
+    const auto id = original.get_id();
+
+    auto moved = zg::DrawableObject{std::move(original)};
+    EXPECT_EQ(moved.get_id(), id);
+    EXPECT_EQ(original.get_id(), 0);
+
+    const auto moved_again = zg::DrawableObject{std::move(moved)};
+    EXPECT_EQ(moved_again.get_id(), id);
+    EXPECT_EQ(moved.get_id(), 0);
+
+    const auto next = zg::DrawableObject{nullptr, nullptr};
+    EXPECT_EQ(next.get_id(), id + 1);
 }
 
 // An empty composite is the identity matrix.

@@ -6,6 +6,8 @@
 #include <array>
 #include <glm/ext/vector_double2.hpp>
 #include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_int2.hpp>
+#include <optional>
 
 namespace zpg::core {
 namespace events = gfobserver::events;
@@ -19,6 +21,7 @@ struct InputManager {
 
     glm::dvec2 cursor{0, 0};
     glm::vec2 mouse_delta{0.f};
+    std::optional<glm::dvec2> pending_stencil_click;
 
   public:
     auto subscribe(gfobserver::GlfwObserver& observer) -> void;
@@ -28,5 +31,9 @@ struct InputManager {
     auto on_focus(bool focused) -> void;
     auto reset_cursor() -> void;
     auto update(Camera& camera, float dt) -> void;
+
+    auto
+    process_stencil_click(glm::ivec2 window_size, glm::ivec2 framebuffer_size)
+        -> void;
 };
 } // namespace zpg::core

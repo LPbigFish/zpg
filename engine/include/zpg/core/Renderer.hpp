@@ -10,6 +10,7 @@ class Renderer {
     static void render(Scene& scene);
     static void set_viewport(int32_t width, int32_t height);
     static void setup_frame();
+    static void setup_stencil();
     static void setup_rendering();
 };
 

@@ -5,6 +5,20 @@
 #include <glm/ext/vector_float2.hpp>
 #include <utility>
 
+namespace {
+constexpr auto stride_from_layout(zpg::graphics::VertexLayout layout)
+    -> std::size_t {
+    switch (layout) {
+        case zpg::graphics::VertexLayout::PosColorNormal: [[fallthrough]];
+        case zpg::graphics::VertexLayout::PosNormalColor: return 9;
+        case zpg::graphics::VertexLayout::PosNormalUv: return 8;
+        case zpg::graphics::VertexLayout::Pos: return 3;
+        default: return 6;
+    }
+}
+
+} // namespace
+
 namespace zpg::graphics {
 
 VertexArray::VertexArray(GLuint vao, VertexBuffer&& vertex_buffer):
@@ -12,12 +26,8 @@ VertexArray::VertexArray(GLuint vao, VertexBuffer&& vertex_buffer):
 
 auto VertexArray::to_vertices(std::span<const float> data, VertexLayout layout)
     -> std::vector<Vertex> {
-    const std::size_t stride = layout == VertexLayout::PosColorNormal
-                                    || layout == VertexLayout::PosNormalColor
-                                 ? 9
-                             : layout == VertexLayout::PosNormalUv ? 8
-                             : layout == VertexLayout::Pos         ? 3
-                                                                   : 6;
+    const std::size_t stride = stride_from_layout(layout);
+
     if (data.size() % stride != 0) {
         return {};
     }

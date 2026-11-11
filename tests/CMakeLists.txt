@@ -1,6 +1,6 @@
 find_package(GTest CONFIG REQUIRED)
 
-add_executable(zpg_tests src/EngineTests.cpp)
+add_executable(zpg_tests src/EngineTests.cpp src/InputManagerTests.cpp)
 target_link_libraries(zpg_tests PRIVATE ZPG::Engine GTest::gtest_main)
 zpg_configure_target(zpg_tests)
 

@@ -78,6 +78,11 @@ auto Application::init() -> void {
 
     Renderer::set_viewport(width, height);
 
+    double cursor_x{};
+    double cursor_y{};
+    glfwGetCursorPos(window->get(), &cursor_x, &cursor_y);
+    input_manager.on_cursor({cursor_x, cursor_y});
+
     Application::print_info();
     Application::refresh_window_title();
 }
@@ -110,7 +115,6 @@ auto Application::create_callbacks() -> void {
                 return;
             }
 
-            // Task 2c/2d: break/restore the resize handling on demand.
             switch (event.key) {
                 case GLFW_KEY_F3:
                     this->update_viewport_on_resize
@@ -161,6 +165,7 @@ auto Application::create_callbacks() -> void {
                 Renderer::set_viewport(event.width, event.height);
             }
 
+            // Task 2c/2d: break/restore the resize handling on demand.
             if (this->update_projection_on_resize && !this->scenes.empty()) {
                 this->scenes[this->current_scene_index]->get_camera().resize(
                     event.width, event.height
@@ -426,12 +431,15 @@ auto Application::create_scenes() -> void {
     //     );
     //     this->add_scene(std::move(scene9));
 
-    auto scene10
-        = SceneBuilder::create_plain_scene(texturing_program, skybox_program, fixed_shader_program);
+    auto scene10 = SceneBuilder::create_plain_scene(
+        texturing_program, skybox_program, fixed_shader_program
+    );
     this->add_scene(std::move(scene10));
 
     // SCENE 11 - EB408 classroom
-    auto scene_eb408 = SceneBuilder::create_eb408_scene(texturing_program, fixed_shader_program);
+    auto scene_eb408 = SceneBuilder::create_eb408_scene(
+        texturing_program, fixed_shader_program
+    );
     this->add_scene(std::move(scene_eb408));
 
     this->current_scene_index = this->scenes.size() - 1;
@@ -455,6 +463,19 @@ auto Application::run() -> void {
         Renderer::setup_frame();
 
         Renderer::render(scene);
+
+        int window_width{};
+        int window_height{};
+        int framebuffer_width{};
+        int framebuffer_height{};
+        glfwGetWindowSize(window->get(), &window_width, &window_height);
+        glfwGetFramebufferSize(
+            window->get(), &framebuffer_width, &framebuffer_height
+        );
+        input_manager.process_stencil_click(
+            {window_width, window_height},
+            {framebuffer_width, framebuffer_height}
+        );
 
         glfwSwapBuffers(window->get());
     }

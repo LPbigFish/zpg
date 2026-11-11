@@ -15,6 +15,8 @@ class Camera {
     float fov{60.f};
     float aspect{4.f / 3.f};
 
+    glm::vec2 resolution{800.f, 600.f};
+
     glm::mat4 view_matrix{1};
     glm::mat4 projection_matrix{1};
 
@@ -32,6 +34,8 @@ class Camera {
     auto look(float dx, float dy) -> void;
 
     auto resize(int width, int height) -> void;
+
+    [[nodiscard]] auto get_resolution() const -> const glm::vec2&;
 
     [[nodiscard]] auto front() const -> glm::vec3;
 
